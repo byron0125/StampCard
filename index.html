@@ -121,7 +121,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
     <label for="apiUrl">Apps Script 網頁應用程式網址（/exec）</label>
     <input id="apiUrl" placeholder="https://script.google.com/macros/s/.../exec">
     <label for="pin">家庭 PIN</label>
-    <input id="pin" type="password" autocomplete="off" placeholder="202530">
+    <input id="pin" type="password" autocomplete="off" placeholder="輸入你設定的 PIN">
     <label for="operator">目前操作家長</label>
     <input id="operator" maxlength="30" placeholder="例如：爸爸">
     <div class="actions">
@@ -245,7 +245,7 @@ function getConfig() {
   const pin = $('pin').value;
   const operator = $('operator').value.trim();
 
-  if (!/^https:\/\/script\.google\.com\/macros\/s\/AKfycby8FT8dQG3Bnc0FacInIiu8QwykKpuNPATXO95ktLiU4sFW4ogN7sHhb10MEmqhZ8Da4A[^/]+\/exec$/.test(url)) {
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(url)) {
     throw new Error('請輸入正確的 Apps Script /exec 網址');
   }
   if (!pin) throw new Error('請輸入家庭 PIN');
