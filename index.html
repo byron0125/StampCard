@@ -99,6 +99,24 @@ nav button.active { background: #274f3b; }
 .status { font-size: 13px; margin-top: 10px; white-space: pre-wrap; }
 .status.error { color: var(--red); }
 .status.ok { color: var(--green); }
+#busyOverlay {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(20, 35, 27, .62); backdrop-filter: blur(3px);
+  color: white; text-align: center; padding: 24px;
+}
+#busyOverlay.hidden { display: none !important; }
+.busy-box {
+  background: #fff; color: var(--ink); border-radius: 18px;
+  padding: 26px 30px; min-width: 220px; max-width: 90vw;
+  box-shadow: 0 12px 40px #0004;
+}
+.spinner {
+  width: 38px; height: 38px; margin: 0 auto 14px;
+  border: 4px solid #dce7df; border-top-color: var(--green);
+  border-radius: 50%; animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 @media (max-width: 520px) {
   main { padding: 10px; }
@@ -116,7 +134,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
 </header>
 
 <main>
-  <section class="card">
+  <section id="connectionPanel" class="card">
     <h2>連線設定</h2>
     <label for="apiUrl">Apps Script 網頁應用程式網址（/exec）</label>
     <input id="apiUrl" placeholder="https://script.google.com/macros/s/.../exec">
@@ -141,6 +159,10 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
       </div>
     </div>
 
+    <div class="actions" style="margin:0 0 12px">
+      <button class="secondary small" onclick="toggleConnectionSettings()">連線設定</button>
+    </div>
+
     <nav>
       <button class="active" data-tab="home" onclick="showTab('home',this)">集點首頁</button>
       <button data-tab="history" onclick="showTab('history',this)">交易紀錄</button>
@@ -152,6 +174,23 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
       <div class="card">
         <h2>🎁 可以兌換的獎勵</h2>
         <div id="rewardList" class="list"></div>
+      </div>
+
+      <div class="card">
+        <h2>🧮 金額換算點數</h2>
+        <p class="muted">每 3 元換算 1 點，不足 3 元的部分無條件進位。例如 50 元 = 17 點。</p>
+        <label for="calcItemName">兌換項目名稱</label>
+        <input id="calcItemName" maxlength="80" placeholder="例如：文具、扭蛋" oninput="calculatePoints()">
+        <label for="calcAmount">金額（元）</label>
+        <input id="calcAmount" type="number" min="1" max="1000000" step="1" placeholder="例如：50" oninput="calculatePoints()">
+        <div class="stat" style="margin-top:10px">
+          <span>換算所需點數</span>
+          <strong id="calcResult">—</strong>
+        </div>
+        <div class="actions">
+          <button id="customRedeemBtn" onclick="redeemCalculatedItem()" disabled>直接兌換（扣點）</button>
+          <button id="saveCalculatedRewardBtn" class="secondary" onclick="saveCalculatedReward()" disabled>加入兌換項目</button>
+        </div>
       </div>
 
       <div class="card">
@@ -169,7 +208,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
     <section id="tab-history" class="hidden">
       <div class="card">
         <h2>📒 所有交易紀錄</h2>
-        <p class="muted">取消交易會新增一筆反向紀錄，保留原始紀錄方便查帳。</p>
+        <p class="muted">已取消的交易會與原交易合併在同一列，避免紀錄重複難以判讀。</p>
         <div id="historyList" class="list"></div>
       </div>
     </section>
@@ -226,6 +265,14 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
   </section>
 </main>
 
+<div id="busyOverlay" class="hidden" role="status" aria-live="polite">
+  <div class="busy-box">
+    <div class="spinner"></div>
+    <strong id="busyMessage">處理中，請稍候…</strong>
+    <p class="muted" style="margin-bottom:0">完成前請勿關閉或重複操作</p>
+  </div>
+</div>
+
 <script>
 'use strict';
 
@@ -268,6 +315,34 @@ function loadLocalConfig() {
   } catch (_) {}
 }
 
+function toggleConnectionSettings(forceShow) {
+  const panel = $('connectionPanel');
+  const shouldShow = typeof forceShow === 'boolean'
+    ? forceShow : panel.classList.contains('hidden');
+  panel.classList.toggle('hidden', !shouldShow);
+  if (shouldShow) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showBusy(message = '處理中，請稍候…') {
+  $('busyMessage').textContent = message;
+  $('busyOverlay').classList.remove('hidden');
+  document.querySelectorAll('button').forEach(b => {
+    if (!b.dataset.busyWasDisabled) b.dataset.busyWasDisabled = b.disabled ? '1' : '0';
+    b.disabled = true;
+  });
+}
+
+function hideBusy() {
+  $('busyOverlay').classList.add('hidden');
+  document.querySelectorAll('button').forEach(b => {
+    if (b.dataset.busyWasDisabled !== undefined) {
+      b.disabled = b.dataset.busyWasDisabled === '1';
+      delete b.dataset.busyWasDisabled;
+    }
+  });
+  if ($('connectBtn')) $('connectBtn').disabled = false;
+}
+
 function forgetSettings() {
   if (!confirm('確定清除這台裝置儲存的連線設定？')) return;
   localStorage.removeItem('familyPointsConfig');
@@ -275,6 +350,7 @@ function forgetSettings() {
   $('pin').value = '';
   $('operator').value = '';
   $('app').classList.add('hidden');
+  toggleConnectionSettings(true);
   status('本機設定已清除', false, 'connectionStatus');
 }
 
@@ -332,12 +408,10 @@ function jsonpRead() {
 async function postAction(action, payload = {}) {
   if (busy) throw new Error('上一個操作尚未完成，請稍候');
   busy = true;
-  $('connectBtn').disabled = true;
+  showBusy('正在儲存並確認資料…');
 
   try {
     const c = saveLocalConfig();
-    status('正在送出操作並確認資料…');
-
     await fetch(c.url, {
       method: 'POST',
       mode: 'no-cors',
@@ -349,26 +423,32 @@ async function postAction(action, payload = {}) {
       })
     });
 
+    // no-cors 無法讀取 POST 回應，因此送出後重新讀取後端資料。
     await new Promise(resolve => setTimeout(resolve, 1200));
     await refreshData(false);
-    status('已送出操作並重新讀取資料。請確認紀錄及點數是否符合預期。');
+    status('已重新讀取資料；請確認點數與交易紀錄是否符合預期。');
   } finally {
     busy = false;
-    $('connectBtn').disabled = false;
+    hideBusy();
   }
 }
 
-async function connect() {
+async function connect(auto = false) {
   try {
-    saveLocalConfig();
-    status('正在連線…', false, 'connectionStatus');
+    if (!auto) saveLocalConfig();
+    showBusy(auto ? '正在自動連線…' : '正在連線…');
     appData = await jsonpRead();
     $('app').classList.remove('hidden');
+    toggleConnectionSettings(false);
     render();
     status('連線成功', false, 'connectionStatus');
     status('資料已載入');
   } catch (e) {
+    toggleConnectionSettings(true);
     status(e.message, true, 'connectionStatus');
+    if (auto) $('app').classList.add('hidden');
+  } finally {
+    hideBusy();
   }
 }
 
@@ -406,12 +486,16 @@ function render() {
   $('balance').textContent = appData.balance;
   const txs = appData.transactions || [];
 
-  $('earned').textContent = txs
-    .filter(t => t.delta > 0 && t.status !== '已取消')
+  // 累積統計只計算仍有效的原始交易；復原交易與已復原原交易均排除。
+  const validOriginalTxs = txs.filter(t =>
+    t.status === '有效' && t.type !== '復原'
+  );
+  $('earned').textContent = validOriginalTxs
+    .filter(t => t.delta > 0)
     .reduce((s, t) => s + t.delta, 0);
 
-  $('spent').textContent = Math.abs(txs
-    .filter(t => t.delta < 0 && t.status !== '已取消')
+  $('spent').textContent = Math.abs(validOriginalTxs
+    .filter(t => t.delta < 0)
     .reduce((s, t) => s + t.delta, 0));
 
   $('initialPoints').value = appData.initialPoints ?? 0;
@@ -419,6 +503,7 @@ function render() {
   renderRewards();
   renderHistory();
   renderRules();
+  calculatePoints();
 }
 
 function renderRewards() {
@@ -461,29 +546,44 @@ function renderHistory() {
     return;
   }
 
-  txs.forEach(t => {
+  // 反向紀錄不另外佔一列；狀態合併顯示在原始交易上。
+  const visibleTxs = txs.filter(t => t.type !== '復原');
+
+  visibleTxs.forEach(t => {
     const row = makeElement('div', 'tx');
     const left = makeElement('div');
+    const canceled = t.status === '已復原' || t.status === '已取消';
     left.append(makeElement('strong', '', t.item || t.type));
 
-    const detail = [t.type, t.operator, t.status, t.note]
+    const detail = [t.type, t.operator, canceled ? '已取消／已復原' : t.status, t.note]
       .filter(Boolean).join(' · ');
     left.append(makeElement('div', 'meta', detail));
     left.append(makeElement('div', 'meta', t.time || ''));
 
+    if (canceled) {
+      const reversal = txs.find(r => r.type === '復原' && r.relatedId === t.id);
+      const note = reversal
+        ? '原始交易 ' + (t.delta > 0 ? '+' : '') + t.delta +
+          ' 點，已由復原紀錄抵銷'
+        : '此交易已取消';
+      left.append(makeElement('div', 'meta', note));
+    }
+
     const right = makeElement('div');
     right.style.textAlign = 'right';
+    const amountText = (t.delta > 0 ? '+' : '') + t.delta + ' 點' +
+      (canceled ? '（已取消）' : '');
     right.append(makeElement(
       'div',
-      t.delta >= 0 ? 'plus' : 'minus',
-      (t.delta > 0 ? '+' : '') + t.delta + ' 點'
+      canceled ? 'muted' : (t.delta >= 0 ? 'plus' : 'minus'),
+      amountText
     ));
 
     if (t.status === '有效' && t.type !== '復原') {
       const btn = makeElement('button', 'danger small', '取消／復原');
       btn.style.marginTop = '6px';
       btn.onclick = async () => {
-        if (!confirm('確定復原這筆交易？系統會新增一筆反向交易。')) return;
+        if (!confirm('確定復原這筆交易？復原後會抵銷原交易的點數。')) return;
         try {
           await postAction('cancel', { transactionId: t.id });
         } catch (e) { status(e.message, true); }
@@ -520,6 +620,64 @@ function renderRules() {
     row.append(info, edit);
     root.append(row);
   });
+}
+
+function calculatePoints() {
+  const amount = Number($('calcAmount').value);
+  const name = $('calcItemName').value.trim();
+  const valid = Number.isFinite(amount) && Number.isInteger(amount) &&
+    amount > 0 && amount <= 1000000;
+  const points = valid ? Math.ceil(amount / 3) : 0;
+  $('calcResult').textContent = valid ? points + ' 點' : '—';
+  $('customRedeemBtn').disabled = !valid || !name || !appData || appData.balance < points;
+  $('saveCalculatedRewardBtn').disabled = !valid || !name;
+  return { valid, amount, points, name };
+}
+
+async function redeemCalculatedItem() {
+  const c = calculatePoints();
+  if (!c.valid || !c.name) {
+    status('請輸入項目名稱及有效金額', true);
+    return;
+  }
+  if (!appData || appData.balance < c.points) {
+    status('目前點數不足，無法兌換', true);
+    return;
+  }
+  if (!confirm('確定兌換「' + c.name + '」？金額 ' + c.amount +
+      ' 元，需扣 ' + c.points + ' 點。')) return;
+  try {
+    await postAction('redeemCustom', {
+      name: c.name,
+      points: c.points,
+      note: '金額 ' + c.amount + ' 元；每 3 元 1 點，無條件進位'
+    });
+    $('calcItemName').value = '';
+    $('calcAmount').value = '';
+    calculatePoints();
+  } catch (e) { status(e.message, true); }
+}
+
+async function saveCalculatedReward() {
+  const c = calculatePoints();
+  if (!c.valid || !c.name) {
+    status('請輸入項目名稱及有效金額', true);
+    return;
+  }
+  if (!confirm('要將「' + c.name + '」加入獎勵設定嗎？所需點數：' +
+      c.points + ' 點。')) return;
+  try {
+    await postAction('saveReward', {
+      id: '',
+      name: c.name,
+      cost: c.points,
+      enabled: true
+    });
+    $('calcItemName').value = '';
+    $('calcAmount').value = '';
+    calculatePoints();
+    status('已加入兌換項目');
+  } catch (e) { status(e.message, true); }
 }
 
 async function addPoints() {
@@ -619,6 +777,18 @@ async function importJson() {
 }
 
 loadLocalConfig();
+(function autoConnectIfConfigured() {
+  const saved = (() => {
+    try { return JSON.parse(localStorage.getItem('familyPointsConfig') || '{}'); }
+    catch (_) { return {}; }
+  })();
+  if (saved.url && saved.pin) {
+    $('connectionPanel').classList.add('hidden');
+    connect(true);
+  } else {
+    $('connectionPanel').classList.remove('hidden');
+  }
+})();
 </script>
 </body>
 </html>
