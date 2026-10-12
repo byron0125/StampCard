@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我們的集點簿</title>
+<style>
+:root {
+  --primary-purple: #9b7eb8;
+  --light-purple: #f3f0f7;
+  --dark-purple: #523e6e;
+  --yellow-bg: #fffbf0;
+  --yellow-card: #fef6d8;
+  --ink: #3b3042;
+  --muted: #82758c;
+  --line: #ebdff2;
+  --white: #fff;
+  --red: #b74d4d;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #f7f5ef;
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Noto Sans TC", sans-serif;
+  padding-bottom: 32px;
+}
+header {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 12px;
+  text-align: left; padding: 16px 20px;
+  background: #f7f5efee; backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e8e4d9;
+}
+header h1 { font-size: 20px; margin: 0; }
+header p { display: none; }
+#menuToggle { display: none; width: 42px; height: 42px; padding: 0; border-radius: 14px; background: #e4ecdf; color: #3f6042; font-size: 22px; }
+body.app-ready #menuToggle { display: block; }
+header .brand { flex: 1; }
+main { max-width: 920px; margin: auto; padding: 20px; }
+
+/* 精緻圓角卡片 */
+.card {
+  background: var(--white);
+  border: 1px solid #ece4d8;
+  border-radius: 28px;
+  padding: 24px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 30px rgba(43, 34, 24, 0.04);
+}
+h2 { font-size: 18px; margin: 0 0 14px; }
+h3 { font-size: 16px; margin: 12px 0 8px; }
+label { display: block; font-size: 13px; margin: 12px 0 6px; color: var(--muted); font-weight: 500; }
+input, select, textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d9d0c1;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  min-height: 48px;
+  transition: all 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 3px rgba(155, 126, 184, 0.15);
+}
+button {
+  border: 0;
+  border-radius: 16px;
+  padding: 12px 18px;
+  background: var(--dark-purple);
+  color: white;
+  font: inherit;
+  cursor: pointer;
+  min-height: 46px;
+  font-weight: 600;
+  transition: transform 0.1s, opacity 0.2s;
+}
+button:active { transform: scale(0.98); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.secondary { background: #f0ece1; color: var(--ink); }
+button.danger { background: #fae8e6; color: var(--red); }
+button.small { padding: 6px 12px; font-size: 13px; min-height: 36px; border-radius: 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+
+/* 雙欄首頁設計 */
+.home-layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .home-layout { grid-template-columns: 1fr; }
+}
+
+/* 左側：星光點數大卡片 (紫色漸層) */
+.home-balance-card {
+  background: linear-gradient(145deg, #a893cb, #7a61a0);
+  color: #fff;
+  border-radius: 28px;
+  padding: 26px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(122, 97, 160, 0.28);
+  margin-bottom: 18px;
+}
+.home-balance-card::after {
+  content: '✨';
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  font-size: 40px;
+  opacity: 0.85;
+}
+.home-balance-card .eyebrow { font-size: 13px; color: #f3ebfc; margin-bottom: 4px; font-weight: 500; }
+.home-balance-card .balance-number { font-size: 52px; font-weight: 800; line-height: 1.1; letter-spacing: -1px; }
+.home-balance-card .balance-note { font-size: 13px; color: #f8f4fe; margin-top: 10px; opacity: 0.95; }
+
+/* 花朵旅程集點卡片 */
+.flower-journey-card {
+  background: #fff;
+  border: 1px solid #ece4d8;
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow: 0 8px 30px rgba(43, 34, 24, 0.04);
+  margin-bottom: 18px;
+}
+.journey-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+.journey-subtitle { font-size: 11px; text-transform: uppercase; color: #a394b3; letter-spacing: 1.2px; font-weight: 800; }
+.journey-title { font-size: 19px; font-weight: 800; color: var(--ink); margin: 3px 0; }
+.journey-desc { font-size: 12px; color: var(--muted); }
+.page-progress-badge {
+  background: #fdfae7;
+  border: 1px solid #f2e2be;
+  border-radius: 16px;
+  padding: 10px 16px;
+  text-align: center;
+}
+.page-progress-badge span { display: block; font-size: 11px; color: #b59b52; font-weight: 600; }
+.page-progress-badge strong { font-size: 17px; color: #8a702b; font-weight: 800; }
+
+/* 花朵路徑格線 */
+.stamp-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  background: #fbf9f5;
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 16px;
+  border: 2px dashed #e6dec9;
+}
+.stamp-cell {
+  position: relative;
+  aspect-ratio: 1;
+  background: #fff;
+  border: 2px dashed #d8cebf;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  overflow: hidden;
+}
+.stamp-fill { position: absolute; inset: auto 0 0; background: #faedd9; z-index: 0; transition: height .25s ease; }
+.stamp-icon { position: relative; z-index: 1; font-size: 22px; color: #ccc2b4; }
+.stamp-label { position: relative; z-index: 1; font-size: 11px; color: #9c9082; font-weight: 700; }
+.stamp-cell.filled { border-color: #d19bb0; background: #fdf5f7; }
+.stamp-cell.filled .stamp-icon { color: #db6b8a; }
+.stamp-cell.filled .stamp-label { color: #a8425f; }
+.stamp-cell.gift-cell { border: 2px solid #e8c674; background: #fffbf0; }
+.stamp-cell.gift-cell .stamp-icon { color: #e09f28; font-size: 24px; }
+.stamp-cell.gift-cell .stamp-label { color: #a3720f; }
+
+.journey-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.journey-footer span { font-size: 13px; color: var(--muted); font-weight: 500; }
+
+/* 右側：願望禮物卡片風格 (暖黃質感) */
+.wish-container {
+  background: linear-gradient(145deg, #fffcf0, #fff7dc);
+  border: 1px solid #f6ebd0;
+  border-radius: 28px;
+  padding: 22px;
+  box-shadow: 0 8px 28px rgba(224, 189, 105, 0.15);
+  margin-bottom: 18px;
+}
+.wish-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.wish-header .eyebrow { font-size: 11px; font-weight: 800; color: #9c7b2a; letter-spacing: 0.8px; }
+.wish-header h2 { font-size: 16px; margin: 0; color: #4a3a12; }
+.wish-header .gift-icon-badge { font-size: 22px; }
+
+.main-wish-box {
+  background: #fff;
+  border-radius: 20px;
+  padding: 16px;
+  border: 1px solid #f2e4bd;
+  text-align: center;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.02);
+}
+.main-wish-img {
+  background: #fce8ee;
+  border-radius: 16px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+.main-wish-title { font-size: 17px; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
+.main-wish-progress-text { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+.progress-bar-container {
+  background: #f0eadb;
+  border-radius: 10px;
+  height: 12px;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, #e8708e, #db5478);
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.wish-action-btn {
+  width: 100%;
+  background: #e0d6c8;
+  color: #73685e;
+  font-weight: 700;
+  border-radius: 14px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+/* 其他願望清單區塊 */
+.other-wishes-card {
+  background: #fff;
+  border: 1px solid #ece4d8;
+  border-radius: 28px;
+  padding: 22px;
+  box-shadow: 0 8px 30px rgba(43, 34, 24, 0.04);
+  margin-bottom: 18px;
+}
+.other-wishes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.other-wishes-header h3 { margin: 0; font-size: 16px; }
+.other-wishes-header a { font-size: 12px; color: var(--muted); text-decoration: none; cursor: pointer; font-weight: 600; }
+
+.wish-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1px solid #ece4d8;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  background: #faf8f5;
+  transition: all 0.2s;
+}
+.wish-item-row.selected {
+  border-color: #a893cb;
+  background: var(--light-purple);
+  box-shadow: 0 4px 12px rgba(168, 147, 203, 0.15);
+}
+.wish-item-info { display: flex; align-items: center; gap: 12px; }
+.wish-item-icon {
+  width: 40px; height: 40px; background: #fff; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+  border: 1px solid #e2dacd;
+}
+.wish-item-details strong { display: block; font-size: 14px; font-weight: 700; }
+.wish-item-details small { color: var(--muted); font-size: 12px; }
+
+/* 快捷操作按鈕 */
+.home-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+.home-action {
+  min-height: 96px; border-radius: 22px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px; font-weight: 700; font-size: 17px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+.home-action .action-icon { font-size: 24px; line-height: 1; }
+.home-action small { font-size: 12px; font-weight: 400; opacity: .9; }
+.home-action.redeem { background: linear-gradient(135deg, #f0b562, #e09834); color: #fff; }
+.home-action.add { background: linear-gradient(135deg, #6d9175, #507358); color: #fff; }
+
+/* 其他公用元件 */
+.page-heading { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; }
+.page-heading button { background: #f0ece1; color: var(--ink); padding: 8px 12px; }
+.page-heading h2 { margin: 0; }
+#drawerBackdrop { position: fixed; inset: 0; z-index: 1000; background: rgba(23, 35, 27, 0.5); opacity: 0; visibility: hidden; transition: opacity .2s, visibility .2s; }
+#drawerBackdrop.open { opacity: 1; visibility: visible; }
+#sideDrawer { position: fixed; inset: 0 auto 0 0; z-index: 1001; width: min(84vw, 320px); padding: 24px 18px; background: #fffcf8; box-shadow: 12px 0 40px rgba(0,0,0,0.12); transform: translateX(-105%); transition: transform .24s ease; overflow: auto; }
+#sideDrawer.open { transform: translateX(0); }
+.drawer-brand { padding: 8px 10px 24px; border-bottom: 1px solid #ede7db; margin-bottom: 14px; }
+.drawer-brand strong { display: block; font-size: 20px; color: var(--dark-purple); }
+.drawer-brand span { font-size: 12px; color: var(--muted); }
+.drawer-item { width: 100%; display: flex; align-items: center; gap: 14px; text-align: left; padding: 14px 14px; border-radius: 14px; background: transparent; color: var(--ink); margin: 4px 0; font-weight: 600; }
+.drawer-item .drawer-icon { width: 26px; text-align: center; font-size: 19px; }
+.drawer-item.active { background: var(--light-purple); color: var(--dark-purple); }
+.drawer-item.settings { margin-top: 16px; border-top: 1px solid #ede7db; border-radius: 0 0 14px 14px; padding-top: 20px; }
+
+.reward {
+  border: 1px solid #ece4d8;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fff;
+  margin-bottom: 10px;
+}
+.reward strong { display: block; font-size: 15px; font-weight: 700; }
+.reward small { color: var(--muted); font-size: 12px; }
+.list { display: grid; gap: 10px; }
+.tx {
+  padding: 14px 0;
+  border-bottom: 1px solid #f2ece1;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tx:last-child { border-bottom: 0; }
+.tx .meta { color: var(--muted); font-size: 12px; margin-top: 4px; }
+.plus { color: #3b7a57; font-weight: 700; white-space: nowrap; }
+.minus { color: var(--red); font-weight: 700; white-space: nowrap; }
+.muted { color: var(--muted); font-size: 13px; }
+.hidden { display: none !important; }
+.status { font-size: 13px; margin-top: 12px; white-space: pre-wrap; line-height: 1.5; font-weight: 500; }
+.status.error { color: var(--red); }
+.status.ok { color: #3b7a57; }
+
+#busyOverlay {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(20, 35, 27, .65); backdrop-filter: blur(4px);
+  color: white; text-align: center; padding: 24px;
+}
+#busyOverlay.hidden { display: none !important; }
+.busy-box {
+  background: #fff; color: var(--ink); border-radius: 22px;
+  padding: 28px 34px; min-width: 240px; max-width: 90vw;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+}
+.spinner {
+  width: 40px; height: 40px; margin: 0 auto 16px;
+  border: 4px solid #ebdff2; border-top-color: var(--dark-purple);
+  border-radius: 50%; animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+hr { border: 0; border-top: 1px solid #ece4d8; margin: 18px 0; }
+</style>
+</head>
+<body>
+<header>
+  <button id="menuToggle" aria-label="開啟功能選單" onclick="openDrawer()">☰</button>
+  <div class="brand">
+    <h1>🌱 我們的集點簿</h1>
+    <p>每天一點點努力，累積自己的小成就</p>
+  </div>
+</header>
+
+<main>
+  <section id="connectionPanel" class="card">
+    <h2>連線設定</h2>
+    <label for="apiUrl">Apps Script 網頁應用程式網址（/exec）</label>
+    <input id="apiUrl" placeholder="https://script.google.com/macros/s/.../exec">
+    <label for="pin">家庭 PIN</label>
+    <input id="pin" type="password" autocomplete="off" placeholder="輸入你設定的 PIN">
+    <label for="operator">目前操作家長</label>
+    <input id="operator" maxlength="30" placeholder="例如：爸爸">
+    <div class="actions">
+      <button id="connectBtn" onclick="connect()">儲存設定並連線</button>
+      <button class="secondary" onclick="forgetSettings()">清除本機設定</button>
+    </div>
+    <div id="connectionStatus" class="status muted">尚未連線</div>
+    <p class="muted">連線設定只儲存在目前裝置的瀏覽器。另一位家長第一次使用時，也要輸入相同網址與 PIN。</p>
+  </section>
+
+  <section id="app" class="hidden">
+    <section id="tab-home">
+      <div class="home-layout">
+        <div>
+          <div class="home-balance-card">
+            <div class="eyebrow">我的星星</div>
+            <div class="balance-number"><span id="balance">0</span><span style="font-size:22px;margin-left:4px">點</span></div>
+            <div class="balance-note" id="balanceSubtitle">再獲得 42 點，就能兌換心願禮物</div>
+          </div>
+
+          <div class="flower-journey-card">
+            <div class="journey-header">
+              <div>
+                <div class="journey-subtitle">FLOWER JOURNEY</div>
+                <div class="journey-title" id="journeyTitle">第 1 張 · 花朵旅程</div>
+                <div class="journey-desc">每收集 5 點，就會綻放一朵花</div>
+              </div>
+              <div class="page-progress-badge">
+                <span id="pageProgressCount">0 / 50</span>
+                <strong>本頁進度</strong>
+              </div>
+            </div>
+
+            <div id="stampGrid" class="stamp-grid" aria-label="累積點數印章"></div>
+
+            <div class="journey-footer">
+              <span id="journeyFooterNote">再 50 點完成這張卡</span>
+              <button class="small secondary" onclick="showTab('add')">+ 加 5 點</button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="wish-container">
+            <div class="wish-header">
+              <div>
+                <span class="eyebrow">MY WISH</span>
+                <h2>我的願望禮物</h2>
+              </div>
+              <span class="gift-icon-badge">🎁</span>
+            </div>
+
+            <div class="main-wish-box">
+              <div class="main-wish-img" id="wishImg">🎀</div>
+              <div class="main-wish-title" id="wishTitle">請選擇或設定心願禮物</div>
+              <div class="main-wish-progress-text">
+                <span id="wishCostLabel">需要 -- 點</span>
+                <span id="wishProgressRatio">-- / --</span>
+              </div>
+              <div class="progress-bar-container">
+                <div id="wishProgressBar" class="progress-bar-fill" style="width: 0%;"></div>
+              </div>
+              <button id="mainRedeemBtn" class="wish-action-btn" onclick="redeemMainWish()" disabled>還差 -- 點</button>
+            </div>
+          </div>
+
+          <div class="other-wishes-card">
+            <div class="other-wishes-header">
+              <h3>其他願望</h3>
+              <a onclick="showTab('redeem')">點一下更換</a>
+            </div>
+            <div id="otherWishList" class="list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-actions">
+        <button class="home-action add" onclick="showTab('add')"><span class="action-icon">＋</span><span>加點</span><small>獎勵孩子的好表現</small></button>
+        <button class="home-action redeem" onclick="showTab('redeem')"><span class="action-icon">🎁</span><span>兌換</span><small>換取喜歡的獎勵</small></button>
+      </div>
+      <div id="appStatus" class="status muted"></div>
+    </section>
+
+    <section id="tab-add" class="hidden">
+      <div class="page-heading"><button onclick="showTab('home')">←</button><h2>幫孩子加點</h2></div>
+      <div class="card">
+        <p class="muted" style="margin-top:0">記錄孩子的好表現，讓努力變成看得見的點數。</p>
+        <label for="addPoints">增加點數</label>
+        <input id="addPoints" type="number" min="1" max="100000" step="1" placeholder="例如：5">
+        <label for="addNote">原因或備註</label>
+        <input id="addNote" maxlength="200" placeholder="例如：自己收好玩具">
+        <div class="actions"><button onclick="addPoints()">確認加點</button></div>
+      </div>
+    </section>
+
+    <section id="tab-redeem" class="hidden">
+      <div class="page-heading"><button onclick="showTab('home')">←</button><h2>兌換獎勵</h2></div>
+      <div class="card">
+        <p class="muted" style="margin-top:0">目前可用 <strong id="redeemBalance">0</strong> 點，選擇想兌換的獎勵（點擊即可設為首頁「我的願望禮物」或直接兌換）。</p>
+        <div id="rewardList" class="list"></div>
+      </div>
+    </section>
+
+    <section id="tab-calculator" class="hidden">
+      <div class="page-heading"><button onclick="showTab('home')">←</button><h2>金額換算點數</h2></div>
+      <div class="card">
+        <p class="muted" style="margin-top:0">每 3 元換算 1 點，不足 3 元的部分無條件進位。例如 50 元 = 17 點。</p>
+        <label for="calcItemName">兌換項目名稱</label>
+        <input id="calcItemName" maxlength="80" placeholder="例如：文具、扭蛋" oninput="calculatePoints()">
+        <label for="calcAmount">金額（元）</label>
+        <input id="calcAmount" type="number" min="1" max="1000000" step="1" placeholder="例如：50" oninput="calculatePoints()">
+        <div class="reward" style="margin-top:14px; background:var(--light-purple);">
+          <div><strong>換算所需點數</strong><small>自動計算</small></div>
+          <strong id="calcResult" style="font-size:22px; color:var(--dark-purple);">—</strong>
+        </div>
+        <div class="actions">
+          <button id="customRedeemBtn" onclick="redeemCalculatedItem()" disabled>直接兌換（扣點）</button>
+          <button id="saveCalculatedRewardBtn" class="secondary" onclick="saveCalculatedReward()" disabled>加入兌換項目</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-history" class="hidden">
+      <div class="page-heading"><button onclick="showTab('home')">←</button><h2>交易紀錄</h2></div>
+      <div class="card">
+        <p class="muted" style="margin-top:0">加點、兌換、取消與復原紀錄都會顯示在這裡。</p>
+        <div id="historyList" class="list"></div>
+      </div>
+    </section>
+
+    <section id="tab-rules" class="hidden">
+      <div class="page-heading"><button onclick="showTab('home')">←</button><h2>集點設定</h2></div>
+      <div class="card">
+        <h3>兌換項目管理</h3>
+        <div id="rulesList" class="list"></div>
+        <hr>
+        <h3 id="rewardFormTitle">新增獎勵</h3>
+        <input id="rewardId" type="hidden">
+        <label for="rewardName">獎勵名稱</label><input id="rewardName" maxlength="80" placeholder="例如：轉蛋">
+        <label for="rewardCost">所需點數</label><input id="rewardCost" type="number" min="0" max="100000" step="1" value="20">
+        <label><input id="rewardEnabled" type="checkbox" checked style="width:auto;min-height:auto"> 啟用此獎勵</label>
+        <div class="actions"><button onclick="saveReward()">儲存獎勵</button><button class="secondary" onclick="clearRewardForm()">清除表單</button></div>
+        <hr>
+        <h3>初始點數</h3>
+        <label for="initialPoints">初始點數</label><input id="initialPoints" type="number" min="0" max="1000000" step="1">
+        <div class="actions"><button onclick="saveInitialPoints()">儲存初始點數</button></div>
+      </div>
+    </section>
+
+    <section id="tab-backup" class="hidden">
+      <div class="page-heading"><button onclick="showTab('home')">←</button><h2>資料備份／還原</h2></div>
+      <div class="card">
+        <h3>JSON 資料備份</h3><p class="muted">匯出目前獎勵設定、初始點數及全部交易紀錄。</p>
+        <div class="actions"><button onclick="exportJson()">下載 JSON 備份</button></div>
+        <hr><h3>匯入備份</h3><p class="muted">匯入會覆蓋目前的獎勵項目與交易紀錄。</p>
+        <label for="importFile">選擇 JSON 檔案</label><input id="importFile" type="file" accept=".json,application/json">
+        <div class="actions"><button class="danger" onclick="importJson()">匯入並覆蓋目前資料</button></div>
+      </div>
+    </section>
+    <div class="actions" style="justify-content:center"><button class="secondary small" onclick="refreshData()">重新整理資料</button></div>
+  </section>
+</main>
+
+<div id="drawerBackdrop" onclick="closeDrawer()"></div>
+<aside id="sideDrawer" aria-label="功能選單">
+  <div class="drawer-brand"><strong>🌱 我們的集點簿</strong><span>家庭共享的快樂小帳本</span></div>
+  <button class="drawer-item active" data-page="home" onclick="showTab('home')"><span class="drawer-icon">⌂</span>首頁</button>
+  <button class="drawer-item" data-page="history" onclick="showTab('history')"><span class="drawer-icon">📒</span>交易紀錄</button>
+  <button class="drawer-item" data-page="calculator" onclick="showTab('calculator')"><span class="drawer-icon">🧮</span>金額換算</button>
+  <button class="drawer-item" data-page="rules" onclick="showTab('rules')"><span class="drawer-icon">🎁</span>兌換項目管理／集點設定</button>
+  <button class="drawer-item" data-page="backup" onclick="showTab('backup')"><span class="drawer-icon">💾</span>資料備份／還原</button>
+  <button class="drawer-item settings" onclick="toggleConnectionSettings(true);closeDrawer();"><span class="drawer-icon">⚙</span>連線設定</button>
+</aside>
+
+<div id="busyOverlay" class="hidden" role="status" aria-live="polite">
+  <div class="busy-box">
+    <div class="spinner"></div>
+    <strong id="busyMessage">處理中，請稍候…</strong>
+    <p class="muted" style="margin-bottom:0">完成前請勿關閉或重複操作</p>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+let appData = null;
+let busy = false;
+let selectedMainWishId = localStorage.getItem('selectedMainWishId') || '';
+
+const $ = id => document.getElementById(id);
+
+function status(message, error = false, target = 'appStatus') {
+  const el = $(target);
+  el.textContent = message;
+  el.className = 'status ' + (error ? 'error' : 'ok');
+}
+
+function getConfig() {
+  const url = $('apiUrl').value.trim();
+  const pin = $('pin').value;
+  const operator = $('operator').value.trim();
+
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(url)) {
+    throw new Error('請輸入正確的 Apps Script /exec 網址');
+  }
+  if (!pin) throw new Error('請輸入家庭 PIN');
+
+  return { url, pin, operator };
+}
+
+function saveLocalConfig() {
+  const c = getConfig();
+  localStorage.setItem('familyPointsConfig', JSON.stringify(c));
+  return c;
+}
+
+function loadLocalConfig() {
+  try {
+    const c = JSON.parse(localStorage.getItem('familyPointsConfig') || '{}');
+    $('apiUrl').value = c.url || '';
+    $('pin').value = c.pin || '';$('operator').value = c.operator || '';
+  } catch (_) {}
+}
+
+function toggleConnectionSettings(forceShow) {
+  const panel = $('connectionPanel');
+  const shouldShow = typeof forceShow === 'boolean'
+    ? forceShow : panel.classList.contains('hidden');
+  panel.classList.toggle('hidden', !shouldShow);
+  if (shouldShow) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showBusy(message = '處理中，請稍候…') {
+  $('busyMessage').textContent = message;
+  $('busyOverlay').classList.remove('hidden');
+  document.querySelectorAll('button').forEach(b => {
+    if (!b.dataset.busyWasDisabled) b.dataset.busyWasDisabled = b.disabled ? '1' : '0';
+    b.disabled = true;
+  });
+}
+
+function hideBusy() {
+  $('busyOverlay').classList.add('hidden');
+  document.querySelectorAll('button').forEach(b => {
+    if (b.dataset.busyWasDisabled !== undefined) {
+      b.disabled = b.dataset.busyWasDisabled === '1';
+      delete b.dataset.busyWasDisabled;
+    }
+  });
+  if ($('connectBtn'))$('connectBtn').disabled = false;
+}
+
+function forgetSettings() {
+  if (!confirm('確定清除這台裝置儲存的連線設定？')) return;
+  localStorage.removeItem('familyPointsConfig');
+  $('apiUrl').value = '';$('pin').value = '';
+  $('operator').value = '';$('app').classList.add('hidden');
+  toggleConnectionSettings(true);
+  status('本機設定已清除', false, 'connectionStatus');
+}
+
+function jsonpRead() {
+  return new Promise((resolve, reject) => {
+    let c;
+    try { c = getConfig(); } catch (e) { reject(e); return; }
+
+    const callback = 'familyPointsCallback_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
+    const script = document.createElement('script');
+    let finished = false;
+
+    const cleanup = () => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      delete window[callback];
+      script.remove();
+    };
+
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('讀取逾時，請確認網址、PIN 及部署權限'));
+    }, 15000);
+
+    window[callback] = result => {
+      cleanup();
+      if (!result || !result.ok) {
+        reject(new Error(result?.message || '讀取失敗'));
+      } else {
+        resolve(result.data);
+      }
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('無法連線，請檢查 Apps Script 部署網址'));
+    };
+
+    script.src = c.url + '?action=read&pin=' + encodeURIComponent(c.pin) + '&callback=' + callback + '&_=' + Date.now();
+    document.body.appendChild(script);
+  });
+}
+
+async function postAction(action, payload = {}) {
+  if (busy) throw new Error('上一個操作尚未完成，請稍候');
+  busy = true;
+  showBusy('正在儲存並確認資料…');
+
+  try {
+    const c = saveLocalConfig();
+    await fetch(c.url, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: new URLSearchParams({
+        action,
+        pin: c.pin,
+        operator: c.operator,
+        payload: JSON.stringify(payload)
+      })
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    await refreshData(false);
+    status('已重新讀取資料；請確認點數與交易紀錄是否符合預期。');
+  } finally {
+    busy = false;
+    hideBusy();
+  }
+}
+
+async function connect(auto = false) {
+  try {
+    if (!auto) saveLocalConfig();
+    showBusy(auto ? '正在自動連線…' : '正在連線…');
+    appData = await jsonpRead();
+    $('app').classList.remove('hidden');
+    document.body.classList.add('app-ready');
+    toggleConnectionSettings(false);
+    render();
+    showTab('home');
+    status('連線成功', false, 'connectionStatus');
+  } catch (e) {
+    toggleConnectionSettings(true);
+    status(e.message, true, 'connectionStatus');
+    if (auto) { $('app').classList.add('hidden'); document.body.classList.remove('app-ready'); }
+  } finally {
+    hideBusy();
+  }
+}
+
+async function refreshData(showMessage = true) {
+  try {
+    appData = await jsonpRead();
+    $('app').classList.remove('hidden');
+    document.body.classList.add('app-ready');
+    render();
+    if (showMessage) status('資料已更新');
+  } catch (e) {
+    status(e.message, true);
+    throw e;
+  }
+}
+
+function openDrawer() {
+  if (busy) return;
+  $('sideDrawer').classList.add('open');$('drawerBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer() {
+  $('sideDrawer').classList.remove('open');$('drawerBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function showTab(name) {
+  const tabs = ['home', 'add', 'redeem', 'calculator', 'history', 'rules', 'backup'];
+  tabs.forEach(tab => {
+    const section = $('tab-' + tab);
+    if (section) section.classList.toggle('hidden', tab !== name);
+  });
+  document.querySelectorAll('.drawer-item[data-page]').forEach(b => {
+    b.classList.toggle('active', b.dataset.page === name);
+  });
+  closeDrawer();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function makeElement(tag, className, text) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+
+function render() {
+  if (!appData) return;
+
+  $('balance').textContent = appData.balance;
+  $('redeemBalance').textContent = appData.balance;
+  $('initialPoints').value = appData.initialPoints ?? 0;
+
+  const txs = appData.transactions || [];
+  const validEarned = txs.filter(t =>
+    t.status === '有效' && t.type !== '復原' && Number(t.delta) > 0
+  ).reduce((sum, t) => sum + Number(t.delta), 0);
+  const totalEarned = (Number(appData.initialPoints) || 0) + validEarned;
+
+  renderStamps(totalEarned);
+  renderWishSection();
+  renderRewards();
+  renderHistory();
+  renderRules();
+  calculatePoints();
+}
+
+function renderStamps(totalEarned) {
+  const grid = $('stampGrid');
+  grid.replaceChildren();
+  const total = Math.max(0, Math.floor(Number(totalEarned) || 0));
+  const roundSize = 50;
+  const completedRounds = Math.floor(total / roundSize);
+  const remainder = total % roundSize;
+  const fullCells = remainder === 0 && total > 0 ? 10 : Math.floor(remainder / 5);
+  const partialPoints = remainder === 0 && total > 0 ? 0 : remainder % 5;
+
+  $('journeyTitle').textContent = `第 ${completedRounds + 1} 張 · 花朵旅程`;
+  $('pageProgressCount').textContent = `${remainder} / 50`;
+  $('journeyFooterNote').textContent = remainder === 0 && total > 0 ? '本輪已集滿 50 點！' : `再 ${50 - remainder} 點完成這張卡`;
+  $('balanceSubtitle').textContent = `已累積 ${total} 點，繼續加油！`;
+
+  for (let i = 0; i < 10; i++) {
+    const isGiftSlot = (i === 9);
+    const cell = makeElement('div', 'stamp-cell' + (isGiftSlot ? ' gift-cell' : ''));
+    const fill = makeElement('div', 'stamp-fill');
+    const icon = makeElement('div', 'stamp-icon', isGiftSlot ? '🎁' : '✿');
+    const label = makeElement('div', 'stamp-label');
+
+    let fillPercent = 0;
+    if (i < fullCells) {
+      fillPercent = 100;
+      cell.classList.add('filled');
+      label.textContent = isGiftSlot ? '完成' : '5 點';
+    } else if (i === fullCells && partialPoints > 0) {
+      fillPercent = partialPoints / 5 * 100;
+      cell.classList.add('partial');
+      label.textContent = `${partialPoints}/5 點`;
+    } else {
+      label.textContent = isGiftSlot ? '禮物' : `${(i + 1) * 5}`;
+    }
+    fill.style.height = fillPercent + '%';
+    cell.append(fill, icon, label);
+    grid.append(cell);
+  }
+}
+
+function renderWishSection() {
+  const rewards = (appData.rewards || []).filter(r => r.enabled);
+  if (!rewards.length) {
+    $('wishTitle').textContent = '尚無啟用獎勵';
+    $('wishCostLabel').textContent = '需要 -- 點';
+    $('wishProgressRatio').textContent = '-- / --';$('mainRedeemBtn').disabled = true;
+    $('otherWishList').replaceChildren(makeElement('p', 'muted', '請先至後台新增並啟用兌換項目。'));
+    return;
+  }
+
+  let currentWish = rewards.find(r => r.id === selectedMainWishId) || rewards[0];
+  selectedMainWishId = currentWish.id;
+  localStorage.setItem('selectedMainWishId', selectedMainWishId);
+
+  $('wishTitle').textContent = currentWish.name;
+  $('wishCostLabel').textContent = `需要 ${currentWish.cost} 點`;
+  const currentBalance = appData.balance;
+  $('wishProgressRatio').textContent = `${currentBalance} / ${currentWish.cost}`;
+
+  const percent = Math.min(100, Math.max(0, (currentBalance / currentWish.cost) * 100));
+  $('wishProgressBar').style.width = percent + '%';
+
+  const diff = currentWish.cost - currentBalance;
+  const btn = $('mainRedeemBtn');
+  if (diff <= 0) {
+    btn.textContent = `🎁 立即兌換「${currentWish.name}」`;
+    btn.disabled = false;
+    btn.style.background = '#e8708e';
+    btn.style.color = '#fff';
+  } else {
+    btn.textContent = `還差 ${diff} 點`;
+    btn.disabled = true;
+    btn.style.background = '#e0d6c8';
+    btn.style.color = '#73685e';
+  }
+
+  const otherList = $('otherWishList');
+  otherList.replaceChildren();
+  rewards.slice(0, 3).forEach(r => {
+    const row = makeElement('div', 'wish-item-row' + (r.id === currentWish.id ? ' selected' : ''));
+    row.style.cursor = 'pointer';
+    row.onclick = () => {
+      selectedMainWishId = r.id;
+      localStorage.setItem('selectedMainWishId', selectedMainWishId);
+      renderWishSection();
+    };
+
+    const info = makeElement('div', 'wish-item-info');
+    info.append(makeElement('div', 'wish-item-icon', r.id === currentWish.id ? '💖' : '🎁'));
+    const details = makeElement('div', 'wish-item-details');
+    details.append(makeElement('strong', '', r.name));
+    details.append(makeElement('small', '', `${r.cost} 點`));
+    info.append(details);
+
+    row.append(info);
+    const selectHint = makeElement('small', 'muted', r.id === currentWish.id ? '心願中' : '選擇');
+    row.append(selectHint);
+    otherList.append(row);
+  });
+}
+
+async function redeemMainWish() {
+  const rewards = (appData.rewards || []).filter(r => r.enabled);
+  const currentWish = rewards.find(r => r.id === selectedMainWishId);
+  if (!currentWish) return;
+
+  if (!confirm(`確定要兌換心願禮物「${currentWish.name}」？需要扣除 ${currentWish.cost} 點。`)) return;
+  try {
+    await postAction('redeem', { rewardId: currentWish.id });
+  } catch (e) { status(e.message, true); }
+}
+
+function renderRewards() {
+  const root = $('rewardList');
+  root.replaceChildren();
+  const rewards = (appData.rewards || []).filter(r => r.enabled);
+
+  if (!rewards.length) {
+    root.append(makeElement('p', 'muted', '目前沒有啟用的獎勵項目。'));
+    return;
+  }
+
+  rewards.forEach(reward => {
+    const card = makeElement('div', 'reward');
+    const info = makeElement('div');
+    info.append(makeElement('strong', '', reward.name));
+    info.append(makeElement('small', '', reward.cost + ' 點'));
+
+    const btnGroup = makeElement('div', 'actions');
+    btnGroup.style.margin = '0';
+    
+    const setWishBtn = makeElement('button', 'secondary small', '設為心願');
+    setWishBtn.onclick = () => {
+      selectedMainWishId = reward.id;
+      localStorage.setItem('selectedMainWishId', selectedMainWishId);
+      renderWishSection();
+      showTab('home');
+      status(`已將「${reward.name}」設為首頁心願禮物！`);
+    };
+
+    const btn = makeElement('button', 'small', '直接兌換');
+    btn.disabled = appData.balance < reward.cost;
+    btn.onclick = async () => {
+      if (!confirm('確定要兌換「' + reward.name + '」？需要 ' + reward.cost + ' 點。')) return;
+      try {
+        await postAction('redeem', { rewardId: reward.id });
+      } catch (e) { status(e.message, true); }
+    };
+
+    btnGroup.append(setWishBtn, btn);
+    card.append(info, btnGroup);
+    root.append(card);
+  });
+}
+
+function renderHistory() {
+  const root = $('historyList');
+  root.replaceChildren();
+  const txs = appData.transactions || [];
+
+  if (!txs.length) {
+    root.append(makeElement('p', 'muted', '目前還沒有交易紀錄。'));
+    return;
+  }
+
+  const visibleTxs = txs.filter(t => t.type !== '復原');
+  visibleTxs.forEach(t => {
+    const row = makeElement('div', 'tx');
+    const left = makeElement('div');
+    const canceled = t.status === '已復原' || t.status === '已取消';
+    left.append(makeElement('strong', '', t.item || t.type));
+
+    const detail = [t.type, t.operator, canceled ? '已取消／已復原' : t.status, t.note].filter(Boolean).join(' · ');
+    left.append(makeElement('div', 'meta', detail));
+    left.append(makeElement('div', 'meta', t.time || ''));
+
+    if (canceled) {
+      const reversal = txs.find(r => r.type === '復原' && r.relatedId === t.id);
+      const note = reversal ? '原始交易已由復原紀錄抵銷' : '此交易已取消';
+      left.append(makeElement('div', 'meta', note));
+    }
+
+    const right = makeElement('div');
+    right.style.textAlign = 'right';
+    const amountText = (t.delta > 0 ? '+' : '') + t.delta + ' 點' + (canceled ? '（已取消）' : '');
+    right.append(makeElement('div', canceled ? 'muted' : (t.delta >= 0 ? 'plus' : 'minus'), amountText));
+
+    if (t.status === '有效' && t.type !== '復原') {
+      const btn = makeElement('button', 'danger small', '取消／復原');
+      btn.style.marginTop = '6px';
+      btn.onclick = async () => {
+        if (!confirm('確定復原這筆交易？復原後會抵銷原交易的點數。')) return;
+        try {
+          await postAction('cancel', { transactionId: t.id });
+        } catch (e) { status(e.message, true); }
+      };
+      right.append(btn);
+    }
+
+    row.append(left, right);
+    root.append(row);
+  });
+}
+
+function renderRules() {
+  const root = $('rulesList');
+  root.replaceChildren();
+
+  (appData.rewards || []).forEach(reward => {
+    const row = makeElement('div', 'reward');
+    const info = makeElement('div');
+    info.append(makeElement('strong', '', reward.name));
+    info.append(makeElement('small', '', reward.cost + ' 點 · ' + (reward.enabled ? '啟用中' : '已停用')));
+
+    const edit = makeElement('button', 'secondary small', '編輯');
+    edit.onclick = () => {
+      $('rewardId').value = reward.id;
+      $('rewardName').value = reward.name;
+      $('rewardCost').value = reward.cost;
+      $('rewardEnabled').checked = reward.enabled;
+      $('rewardFormTitle').textContent = '編輯獎勵';
+      $('rewardName').focus();
+    };
+
+    row.append(info, edit);
+    root.append(row);
+  });
+}
+
+function calculatePoints() {
+  const amount = Number($('calcAmount').value);
+  const name = $('calcItemName').value.trim();
+  const valid = Number.isFinite(amount) && Number.isInteger(amount) && amount > 0 && amount <= 1000000;
+  const points = valid ? Math.ceil(amount / 3) : 0;
+  $('calcResult').textContent = valid ? points + ' 點' : '—';
+  $('customRedeemBtn').disabled = !valid || !name || !appData || appData.balance < points;
+  $('saveCalculatedRewardBtn').disabled = !valid || !name;
+  return { valid, amount, points, name };
+}
+
+async function redeemCalculatedItem() {
+  const c = calculatePoints();
+  if (!c.valid || !c.name) { status('請輸入項目名稱及有效金額', true); return; }
+  if (!appData || appData.balance < c.points) { status('目前點數不足，無法兌換', true); return; }
+  if (!confirm('確定兌換「' + c.name + '」？金額 ' + c.amount + ' 元，需扣 ' + c.points + ' 點。')) return;
+  try {
+    await postAction('redeemCustom', { name: c.name, points: c.points, note: '金額 ' + c.amount + ' 元；每 3 元 1 點' });
+    $('calcItemName').value = '';$('calcAmount').value = '';
+    calculatePoints();
+  } catch (e) { status(e.message, true); }
+}
+
+async function saveCalculatedReward() {
+  const c = calculatePoints();
+  if (!c.valid || !c.name) { status('請輸入項目名稱及有效金額', true); return; }
+  if (!confirm('要將「' + c.name + '」加入獎勵設定嗎？所需點數：' + c.points + ' 點。')) return;
+  try {
+    await postAction('saveReward', { id: '', name: c.name, cost: c.points, enabled: true });
+    $('calcItemName').value = '';$('calcAmount').value = '';
+    calculatePoints();
+    status('已加入兌換項目');
+  } catch (e) { status(e.message, true); }
+}
+
+async function addPoints() {
+  const points = Number($('addPoints').value);
+  const note = $('addNote').value.trim();
+
+  if (!Number.isInteger(points) || points <= 0 || points > 100000) {
+    status('請輸入 1 至 100000 的整數點數', true);
+    return;
+  }
+
+  try {
+    await postAction('addPoints', { points, item: note || '手動加點', note });
+    $('addPoints').value = '';$('addNote').value = '';
+  } catch (e) { status(e.message, true); }
+}
+
+async function saveReward() {
+  const name = $('rewardName').value.trim();
+  const cost = Number($('rewardCost').value);
+  if (!name) { status('請輸入獎勵名稱', true); return; }
+  if (!Number.isInteger(cost) || cost < 0 || cost > 100000) {
+    status('所需點數須為 0 至 100000 的整數', true);
+    return;
+  }
+
+  try {
+    await postAction('saveReward', { id: $('rewardId').value, name, cost, enabled:$('rewardEnabled').checked });
+    clearRewardForm();
+  } catch (e) { status(e.message, true); }
+}
+
+function clearRewardForm() {
+  $('rewardId').value = '';
+  $('rewardName').value = '';$('rewardCost').value = 20;
+  $('rewardEnabled').checked = true;
+  $('rewardFormTitle').textContent = '新增獎勵';
+}
+
+async function saveInitialPoints() {
+  const points = Number($('initialPoints').value);
+  if (!Number.isInteger(points) || points < 0 || points > 1000000) {
+    status('初始點數須為 0 至 1000000 的整數', true);
+    return;
+  }
+  try {
+    await postAction('setInitialPoints', { points });
+  } catch (e) { status(e.message, true); }
+}
+
+function exportJson() {
+  if (!appData) { status('請先連線並載入資料', true); return; }
+  const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'family-points-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function importJson() {
+  const file = $('importFile').files[0];
+  if (!file) { status('請先選擇 JSON 備份檔案', true); return; }
+  if (!confirm('匯入會覆蓋目前所有獎勵及交易紀錄。確定已備份現有資料嗎？')) return;
+
+  try {
+    const data = JSON.parse(await file.text());
+    if (!data || !Array.isArray(data.rewards) || !Array.isArray(data.transactions)) {
+      throw new Error('檔案格式不正確');
+    }
+    await postAction('importJson', { data });
+    $('importFile').value = '';
+  } catch (e) {
+    status('匯入失敗：' + e.message, true);
+  }
+}
+
+loadLocalConfig();
+(function autoConnectIfConfigured() {
+  const saved = (() => {
+    try { return JSON.parse(localStorage.getItem('familyPointsConfig') || '{}'); }
+    catch (_) { return {}; }
+  })();
+  if (saved.url && saved.pin) {
+    $('connectionPanel').classList.add('hidden');
+    connect(true);
+  } else {
+    $('connectionPanel').classList.remove('hidden');
+  }
+})();
+</script>
+</body>
+</html>
