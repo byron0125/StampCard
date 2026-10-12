@@ -6,85 +6,329 @@
 <title>我們的集點簿</title>
 <style>
 :root {
-  --green: #477b62;
-  --pale: #edf5ef;
-  --ink: #283b31;
-  --muted: #718077;
-  --line: #dce7df;
+  --primary-purple: #9b7eb8;
+  --light-purple: #f3f0f7;
+  --dark-purple: #523e6e;
+  --yellow-bg: #fffbf0;
+  --yellow-card: #fef6d8;
+  --yellow-border: #f2dec5;
+  --ink: #3b3042;
+  --muted: #82758c;
+  --line: #ebdff2;
   --white: #fff;
   --red: #b74d4d;
+  --green: #477b62;
 }
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  background: #f5f8f5;
+  background: #f7f5ef;
   color: var(--ink);
   font-family: system-ui, -apple-system, "Noto Sans TC", sans-serif;
+  padding-bottom: 24px;
 }
 header {
-  padding: 24px 16px;
-  text-align: center;
-  background: var(--pale);
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 12px;
+  text-align: left; padding: 14px 16px;
+  background: #f7f5efee; backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e8e4d9;
 }
-header h1 { margin: 0 0 6px; font-size: 25px; }
-header p { margin: 0; color: var(--muted); font-size: 14px; }
+header h1 { font-size: 19px; margin: 0; }
+header p { display: none; }
+#menuToggle { display: none; width: 42px; height: 42px; padding: 0; border-radius: 13px; background: #e4ecdf; color: #3f6042; font-size: 23px; }
+body.app-ready #menuToggle { display: block; }
+header .brand { flex: 1; }
 main { max-width: 850px; margin: auto; padding: 16px; }
 .card {
   background: var(--white);
   border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 14px;
-  box-shadow: 0 2px 8px #263d3010;
+  border-radius: 22px;
+  padding: 18px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 18px #263d3009;
 }
-h2 { font-size: 18px; margin: 0 0 14px; }
+h2 { font-size: 18px; margin: 0 0 12px; }
 h3 { font-size: 16px; margin: 12px 0 8px; }
-label { display: block; font-size: 13px; margin: 10px 0 5px; }
+label { display: block; font-size: 13px; margin: 10px 0 5px; color: var(--muted); }
 input, select, textarea {
   width: 100%;
   padding: 11px;
   border: 1px solid #cad8ce;
-  border-radius: 9px;
+  border-radius: 12px;
   background: white;
   color: var(--ink);
   font: inherit;
+  min-height: 45px;
 }
 button {
   border: 0;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px 14px;
-  background: var(--green);
+  background: var(--dark-purple);
   color: white;
   font: inherit;
   cursor: pointer;
+  min-height: 42px;
 }
 button:disabled { opacity: .45; cursor: not-allowed; }
 button.secondary { background: #e7efe9; color: var(--ink); }
 button.danger { background: #f9e9e8; color: var(--red); }
-button.small { padding: 6px 9px; font-size: 13px; }
+button.small { padding: 6px 9px; font-size: 13px; min-height: 34px; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.stat { background: var(--pale); border-radius: 12px; padding: 12px; }
-.stat span { display: block; color: var(--muted); font-size: 12px; }
-.stat strong { display: block; font-size: 23px; margin-top: 4px; }
-nav { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 14px; }
-nav button { flex: 1; min-width: 72px; white-space: nowrap; }
-nav button.active { background: #274f3b; }
+
+/* 整合 AI 美工排版樣式 */
+.home-layout {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 15px;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .home-layout { grid-template-columns: 1fr; }
+}
+
+/* 左側：星光點數大卡片 */
+.home-balance-card {
+  background: linear-gradient(135deg, #a692c3, #7b639e);
+  color: #fff;
+  border-radius: 24px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(123, 99, 158, 0.25);
+  margin-bottom: 15px;
+}
+.home-balance-card::after {
+  content: '✨';
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 36px;
+  opacity: 0.8;
+}
+.home-balance-card .eyebrow { font-size: 13px; color: #f0e6f7; margin-bottom: 4px; }
+.home-balance-card .balance-number { font-size: 46px; font-weight: 800; line-height: 1.1; letter-spacing: -1px; }
+.home-balance-card .balance-note { font-size: 13px; color: #f4ecfc; margin-top: 8px; }
+
+/* 花朵旅程集點卡片 */
+.flower-journey-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.03);
+  margin-bottom: 15px;
+}
+.journey-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+.journey-subtitle { font-size: 11px; text-transform: uppercase; color: #9c8da6; letter-spacing: 1px; font-weight: 700; }
+.journey-title { font-size: 18px; font-weight: 800; color: var(--ink); margin: 2px 0; }
+.journey-desc { font-size: 12px; color: var(--muted); }
+.page-progress-badge {
+  background: #fcf8eb;
+  border: 1px solid #fae8bd;
+  border-radius: 14px;
+  padding: 8px 14px;
+  text-align: center;
+}
+.page-progress-badge span { display: block; font-size: 11px; color: #b59b52; }
+.page-progress-badge strong { font-size: 16px; color: #8a702b; }
+
+/* 花朵路徑格線 */
+.stamp-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  background: #faf8f5;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 15px;
+  border: 1px dashed #e4dbd1;
+}
+.stamp-cell {
+  position: relative;
+  aspect-ratio: 1;
+  background: #fff;
+  border: 2px dashed #dcd4cc;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  overflow: hidden;
+}
+.stamp-fill { position: absolute; inset: auto 0 0; background: #f2e3d3; z-index: 0; transition: height .25s ease; }
+.stamp-icon { position: relative; z-index: 1; font-size: 20px; color: #d0c5bc; }
+.stamp-label { position: relative; z-index: 1; font-size: 11px; color: #9e9389; font-weight: 700; }
+.stamp-cell.filled { border-color: #c49ba6; background: #fbf3f5; }
+.stamp-cell.filled .stamp-icon { color: #d66b86; }
+.stamp-cell.filled .stamp-label { color: #9e475e; }
+.stamp-cell.gift-cell { border: 2px solid #e3c47b; background: #fdf8e8; }
+.stamp-cell.gift-cell .stamp-icon { color: #d4a035; font-size: 22px; }
+.stamp-cell.gift-cell .stamp-label { color: #9e7512; }
+
+.journey-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.journey-footer span { font-size: 13px; color: var(--muted); }
+
+/* 右側：願望禮物卡片風格 */
+.wish-container {
+  background: #fffbe6;
+  border: 1px solid #fcefc9;
+  border-radius: 26px;
+  padding: 18px;
+  box-shadow: 0 4px 20px rgba(235, 205, 122, 0.15);
+  margin-bottom: 15px;
+}
+.wish-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.wish-header .eyebrow { font-size: 11px; font-weight: 800; color: #8a702b; letter-spacing: 0.5px; }
+.wish-header h2 { font-size: 16px; margin: 0; color: #57461a; }
+.wish-header .gift-icon-badge { font-size: 20px; }
+
+.main-wish-box {
+  background: #fff;
+  border-radius: 18px;
+  padding: 14px;
+  border: 1px solid #f4e8c4;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.main-wish-img {
+  background: #fae4eb;
+  border-radius: 14px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+.main-wish-title { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.main-wish-progress-text { display: flex; justify-content: font-size; font-size: 12px; color: var(--muted); margin-bottom: 6px; justify-content: space-between; }
+.progress-bar-container {
+  background: #eee6d8;
+  border-radius: 10px;
+  height: 10px;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.progress-bar-fill {
+  background: #e86888;
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+.wish-action-btn {
+  width: 100%;
+  background: #dcd4cc;
+  color: #73685e;
+  font-weight: 700;
+  border-radius: 14px;
+  padding: 10px;
+  font-size: 14px;
+}
+
+/* 其他願望清單區塊 */
+.other-wishes-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 16px;
+  margin-bottom: 15px;
+}
+.other-wishes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.other-wishes-header h3 { margin: 0; font-size: 15px; }
+.other-wishes-header a { font-size: 12px; color: var(--muted); text-decoration: none; cursor: pointer; }
+
+.wish-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  background: #faf8f5;
+}
+.wish-item-row.selected {
+  border-color: #a692c3;
+  background: var(--light-purple);
+}
+.wish-item-info { display: flex; align-items: center; gap: 10px; }
+.wish-item-icon {
+  width: 36px; height: 36px; background: #fff; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  border: 1px solid #eee;
+}
+.wish-item-details strong { display: block; font-size: 14px; }
+.wish-item-details small { color: var(--muted); font-size: 12px; }
+
+/* 快速首頁按鈕群 */
+.home-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 15px; }
+.home-action {
+  min-height: 90px; border-radius: 18px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px; font-weight: 700; font-size: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+}
+.home-action .action-icon { font-size: 22px; line-height: 1; }
+.home-action small { font-size: 11px; font-weight: 400; opacity: .85; }
+.home-action.redeem { background: #e8a853; color: #fff; }
+.home-action.add { background: #607d67; color: #fff; }
+
+/* 其他公用元件 */
+.page-heading { display: flex; align-items: center; gap: 10px; margin: 4px 0 14px; }
+.page-heading button { background: #e7efe9; color: var(--ink); padding: 8px 11px; }
+.page-heading h2 { margin: 0; }
+#drawerBackdrop { position: fixed; inset: 0; z-index: 1000; background: rgba(23, 35, 27, 0.6); opacity: 0; visibility: hidden; transition: opacity .2s, visibility .2s; }
+#drawerBackdrop.open { opacity: 1; visibility: visible; }
+#sideDrawer { position: fixed; inset: 0 auto 0 0; z-index: 1001; width: min(82vw, 320px); padding: 22px 15px; background: #fbfaf5; box-shadow: 12px 0 35px rgba(0,0,0,0.1); transform: translateX(-105%); transition: transform .22s ease; overflow: auto; }
+#sideDrawer.open { transform: translateX(0); }
+.drawer-brand { padding: 8px 10px 22px; border-bottom: 1px solid #e7e3d8; margin-bottom: 12px; }
+.drawer-brand strong { display: block; font-size: 20px; color: #523e6e; }
+.drawer-brand span { font-size: 12px; color: var(--muted); }
+.drawer-item { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; padding: 13px 12px; border-radius: 13px; background: transparent; color: var(--ink); margin: 3px 0; }
+.drawer-item .drawer-icon { width: 26px; text-align: center; font-size: 19px; }
+.drawer-item.active { background: var(--light-purple); color: var(--dark-purple); font-weight: 700; }
+.drawer-item.settings { margin-top: 14px; border-top: 1px solid #e7e3d8; border-radius: 0 0 13px 13px; padding-top: 18px; }
+
 .reward {
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 14px;
+  padding: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  background: #fff;
+  margin-bottom: 8px;
 }
-.reward strong { display: block; }
-.reward small { color: var(--muted); }
+.reward strong { display: block; font-size: 15px; }
+.reward small { color: var(--muted); font-size: 12px; }
 .list { display: grid; gap: 8px; }
 .tx {
-  padding: 11px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--line);
   display: flex;
   justify-content: space-between;
@@ -92,13 +336,14 @@ nav button.active { background: #274f3b; }
 }
 .tx:last-child { border-bottom: 0; }
 .tx .meta { color: var(--muted); font-size: 12px; margin-top: 4px; }
-.plus { color: #26784e; font-weight: 700; white-space: nowrap; }
+.plus { color: #3b7a57; font-weight: 700; white-space: nowrap; }
 .minus { color: var(--red); font-weight: 700; white-space: nowrap; }
 .muted { color: var(--muted); font-size: 13px; }
 .hidden { display: none !important; }
-.status { font-size: 13px; margin-top: 10px; white-space: pre-wrap; }
+.status { font-size: 13px; margin-top: 10px; white-space: pre-wrap; line-height: 1.5; }
 .status.error { color: var(--red); }
-.status.ok { color: var(--green); }
+.status.ok { color: #3b7a57; }
+
 #busyOverlay {
   position: fixed; inset: 0; z-index: 9999;
   display: flex; align-items: center; justify-content: center;
@@ -109,91 +354,15 @@ nav button.active { background: #274f3b; }
 .busy-box {
   background: #fff; color: var(--ink); border-radius: 18px;
   padding: 26px 30px; min-width: 220px; max-width: 90vw;
-  box-shadow: 0 12px 40px #0004;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
 }
 .spinner {
   width: 38px; height: 38px; margin: 0 auto 14px;
-  border: 4px solid #dce7df; border-top-color: var(--green);
+  border: 4px solid #ebdff2; border-top-color: var(--dark-purple);
   border-radius: 50%; animation: spin .8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
-@media (max-width: 520px) {
-  main { padding: 10px; }
-  .grid { grid-template-columns: 1fr; }
-  .stats { gap: 5px; }
-  .stat { padding: 9px; }
-  .stat strong { font-size: 19px; }
-}
-
-/* 手機 App 風格 */
-body { background:#f7f5ef; padding-bottom:24px; }
-header { position:sticky; top:0; z-index:100; display:flex; align-items:center; gap:12px; text-align:left; padding:14px 16px; background:#f7f5efee; backdrop-filter:blur(12px); border-bottom:1px solid #e8e4d9; }
-header h1 { font-size:19px; margin:0; }
-header p { display:none; }
-#menuToggle { display:none; width:42px; height:42px; padding:0; border-radius:13px; background:#e4ecdf; color:#3f6042; font-size:23px; }
-body.app-ready #menuToggle { display:block; }
-header .brand { flex:1; }
-main { max-width:650px; padding:14px; }
-.card { border:0; border-radius:22px; padding:18px; margin-bottom:15px; box-shadow:0 4px 18px #263d3009; }
-h2 { font-size:18px; margin-bottom:12px; }
-.home-balance { background:linear-gradient(145deg,#496847,#36533a); color:#fff; padding:24px; }
-.home-balance .eyebrow { color:#dbe8d5; font-size:13px; }
-.home-balance .balance-number { font-size:48px; line-height:1.15; font-weight:800; margin:7px 0; letter-spacing:-1px; }
-.home-balance .balance-note { color:#e0e9dc; font-size:13px; }
-.stamp-card { background:#fffdf8; }
-.stamp-heading { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:14px; }
-.stamp-heading h2 { margin:0; }
-.stamp-heading span { font-size:12px; color:var(--muted); white-space:nowrap; }
-.stamp-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:9px; }
-.stamp-cell { position:relative; min-width:0; aspect-ratio:.88; border:1px solid #e2dfd4; background:#f6f3eb; border-radius:13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; overflow:hidden; }
-.stamp-fill { position:absolute; inset:auto 0 0; background:#dce8d5; z-index:0; transition:height .25s ease; }
-.stamp-icon { position:relative; z-index:1; color:#c9c6bb; font-size:25px; line-height:1; }
-.stamp-cell.filled { border-color:#a9bea0; background:#f1f6ee; }
-.stamp-cell.filled .stamp-icon { color:#496847; }
-.stamp-cell.partial { border-color:#b9c9ae; }
-.stamp-label { position:relative; z-index:1; font-size:11px; line-height:1.2; color:#7d8378; font-weight:650; text-align:center; }
-.stamp-cell.filled .stamp-label,.stamp-cell.partial .stamp-label { color:#3f6042; }
-.stamp-footer { display:flex; justify-content:space-between; gap:8px; margin-top:12px; color:var(--muted); font-size:12px; }
-.home-actions { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0 0 15px; }
-.home-action { min-height:112px; border-radius:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; font-weight:700; font-size:18px; box-shadow:0 5px 14px #263d3010; }
-.home-action .action-icon { font-size:27px; line-height:1; }
-.home-action small { font-size:12px; font-weight:400; opacity:.9; }
-.home-action.redeem { background:#d6a65f; color:#fff; }
-.home-action.add { background:#496847; color:#fff; }
-.page-heading { display:flex; align-items:center; gap:10px; margin:4px 0 14px; }
-.page-heading button { background:#e7efe9; color:var(--ink); padding:8px 11px; }
-.page-heading h2 { margin:0; }
-#drawerBackdrop { position:fixed; inset:0; z-index:1000; background:#17231bcc; opacity:0; visibility:hidden; transition:opacity .2s,visibility .2s; }
-#drawerBackdrop.open { opacity:1; visibility:visible; }
-#sideDrawer { position:fixed; inset:0 auto 0 0; z-index:1001; width:min(82vw,320px); padding:22px 15px; background:#fbfaf5; box-shadow:12px 0 35px #0002; transform:translateX(-105%); transition:transform .22s ease; overflow:auto; }
-#sideDrawer.open { transform:translateX(0); }
-.drawer-brand { padding:8px 10px 22px; border-bottom:1px solid #e7e3d8; margin-bottom:12px; }
-.drawer-brand strong { display:block; font-size:20px; color:#36533a; }
-.drawer-brand span { font-size:12px; color:var(--muted); }
-.drawer-item { width:100%; display:flex; align-items:center; gap:12px; text-align:left; padding:13px 12px; border-radius:13px; background:transparent; color:var(--ink); margin:3px 0; }
-.drawer-item .drawer-icon { width:26px; text-align:center; font-size:19px; }
-.drawer-item.active { background:#e4ecdf; color:#36533a; font-weight:700; }
-.drawer-item.settings { margin-top:14px; border-top:1px solid #e7e3d8; border-radius:0 0 13px 13px; padding-top:18px; }
-.feature-card { background:#fff; }
-.feature-card .intro { color:var(--muted); font-size:13px; line-height:1.6; }
-.reward { border-radius:15px; padding:14px; }
-input,select,textarea { min-height:45px; border-radius:12px; }
-button { min-height:42px; border-radius:12px; }
-button.small { min-height:34px; }
-.status { line-height:1.5; }
-@media (max-width:520px) {
-  main { padding:12px; }
-  .grid { grid-template-columns:1fr; }
-  .home-balance { padding:22px; }
-  .home-balance .balance-number { font-size:44px; }
-  .stamp-grid { gap:7px; }
-  .stamp-cell { border-radius:11px; }
-  .stamp-icon { font-size:22px; }
-  .stamp-label { font-size:10px; }
-  .home-action { min-height:105px; padding:12px 6px; }
-}
-
 </style>
 </head>
 <body>
@@ -224,27 +393,93 @@ button.small { min-height:34px; }
 
   <section id="app" class="hidden">
     <section id="tab-home">
-      <div class="card home-balance">
-        <div class="eyebrow">目前可用點數</div>
-        <div class="balance-number"><span id="balance">0</span><span style="font-size:20px;margin-left:7px">點</span></div>
-        <div class="balance-note">努力累積，兌換喜歡的獎勵！</div>
+      <!-- 整合的雙欄首頁設計 -->
+      <div class="home-layout">
+        <!-- 左側直欄：星光點數 + 花朵旅程集點卡 -->
+        <div>
+          <!-- 頂部點數卡 -->
+          <div class="home-balance-card">
+            <div class="eyebrow">我的星星</div>
+            <div class="balance-number"><span id="balance">0</span><span style="font-size:22px;margin-left:4px">點</span></div>
+            <div class="balance-note" id="balanceSubtitle">再獲得 42 點，就能兌換心願禮物</div>
+          </div>
+
+          <!-- 花朵旅程集點圖鑑卡 -->
+          <div class="flower-journey-card">
+            <div class="journey-header">
+              <div>
+                <div class="journey-subtitle">FLOWER JOURNEY</div>
+                <div class="journey-title" id="journeyTitle">第 1 張 · 花朵旅程</div>
+                <div class="journey-desc">每收集 5 點，就會綻放一朵花</div>
+              </div>
+              <div class="page-progress-badge">
+                <span id="pageProgressCount">0 / 50</span>
+                <strong>本頁進度</strong>
+              </div>
+            </div>
+
+            <!-- 印章/花朵格子 (10格) -->
+            <div id="stampGrid" class="stamp-grid" aria-label="累積點數印章"></div>
+
+            <div class="journey-footer">
+              <span id="journeyFooterNote">再 50 點完成這張卡</span>
+              <button class="small secondary" onclick="showTab('add')">+ 加 5 點</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右側直欄：心願禮物與其他願望 -->
+        <div>
+          <!-- 我的願望禮物卡 -->
+          <div class="wish-container">
+            <div class="wish-header">
+              <div>
+                <span class="eyebrow">MY WISH</span>
+                <h2>我的願望禮物</h2>
+              </div>
+              <span class="gift-icon-badge">🎁</span>
+            </div>
+
+            <div class="main-wish-box">
+              <div class="main-wish-img" id="wishImg">🎀</div>
+              <div class="main-wish-title" id="wishTitle">請選擇或設定心願禮物</div>
+              <div class="main-wish-progress-text">
+                <span id="wishCostLabel">需要 -- 點</span>
+                <span id="wishProgressRatio">-- / --</span>
+              </div>
+              <div class="progress-bar-container">
+                <div id="wishProgressBar" class="progress-bar-fill" style="width: 0%;"></div>
+              </div>
+              <button id="mainRedeemBtn" class="wish-action-btn" onclick="redeemMainWish()" disabled>還差 -- 點</button>
+            </div>
+          </div>
+
+          <!-- 其他願望清單 -->
+          <div class="other-wishes-card">
+            <div class="other-wishes-header">
+              <h3>其他願望</h3>
+              <a onclick="showTab('redeem')">點一下更換</a>
+            </div>
+            <div id="otherWishList" class="list">
+              <!-- 動態載入其他可用獎勵 -->
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="card stamp-card">
-        <div class="stamp-heading"><h2>我的集點印章</h2><span>每格 5 點</span></div>
-        <div id="stampGrid" class="stamp-grid" aria-label="累積點數印章"></div>
-        <div class="stamp-footer"><span id="stampRound">已完成 0 輪</span><span id="stampProgress">目前進度 0 / 50 點</span></div>
-      </div>
-      <div class="home-actions">
-        <button class="home-action add" onclick="showTab('add')"><span class="action-icon">＋</span><span>加點</span><small>獎勵孩子</small></button>
+
+      <!-- 快捷操作按鈕 -->
+      <div class="home-actions" style="margin-top: 15px;">
+        <button class="home-action add" onclick="showTab('add')"><span class="action-icon">＋</span><span>加點</span><small>獎勵孩子的好表現</small></button>
         <button class="home-action redeem" onclick="showTab('redeem')"><span class="action-icon">🎁</span><span>兌換</span><small>換取喜歡的獎勵</small></button>
       </div>
       <div id="appStatus" class="status muted"></div>
     </section>
 
+    <!-- 其他分頁保持原功能與資料串接 -->
     <section id="tab-add" class="hidden">
       <div class="page-heading"><button onclick="showTab('home')">←</button><h2>幫孩子加點</h2></div>
-      <div class="card feature-card">
-        <p class="intro">記錄孩子的好表現，讓努力變成看得見的點數。</p>
+      <div class="card">
+        <p class="muted" style="margin-top:0">記錄孩子的好表現，讓努力變成看得見的點數。</p>
         <label for="addPoints">增加點數</label>
         <input id="addPoints" type="number" min="1" max="100000" step="1" placeholder="例如：5">
         <label for="addNote">原因或備註</label>
@@ -255,21 +490,24 @@ button.small { min-height:34px; }
 
     <section id="tab-redeem" class="hidden">
       <div class="page-heading"><button onclick="showTab('home')">←</button><h2>兌換獎勵</h2></div>
-      <div class="card feature-card">
-        <p class="intro">目前可用 <strong id="redeemBalance">0</strong> 點，選擇想兌換的獎勵。</p>
+      <div class="card">
+        <p class="muted" style="margin-top:0">目前可用 <strong id="redeemBalance">0</strong> 點，選擇想兌換的獎勵（點擊即可設為首頁「我的願望禮物」或直接兌換）。</p>
         <div id="rewardList" class="list"></div>
       </div>
     </section>
 
     <section id="tab-calculator" class="hidden">
       <div class="page-heading"><button onclick="showTab('home')">←</button><h2>金額換算點數</h2></div>
-      <div class="card feature-card">
-        <p class="intro">每 3 元換算 1 點，不足 3 元的部分無條件進位。例如 50 元 = 17 點。</p>
+      <div class="card">
+        <p class="muted" style="margin-top:0">每 3 元換算 1 點，不足 3 元的部分無條件進位。例如 50 元 = 17 點。</p>
         <label for="calcItemName">兌換項目名稱</label>
         <input id="calcItemName" maxlength="80" placeholder="例如：文具、扭蛋" oninput="calculatePoints()">
         <label for="calcAmount">金額（元）</label>
         <input id="calcAmount" type="number" min="1" max="1000000" step="1" placeholder="例如：50" oninput="calculatePoints()">
-        <div class="stat" style="margin-top:10px"><span>換算所需點數</span><strong id="calcResult">—</strong></div>
+        <div class="reward" style="margin-top:12px; background:var(--light-purple);">
+          <div><strong>換算所需點數</strong><small>自動計算</small></div>
+          <strong id="calcResult" style="font-size:20px; color:var(--dark-purple);">—</strong>
+        </div>
         <div class="actions">
           <button id="customRedeemBtn" onclick="redeemCalculatedItem()" disabled>直接兌換（扣點）</button>
           <button id="saveCalculatedRewardBtn" class="secondary" onclick="saveCalculatedReward()" disabled>加入兌換項目</button>
@@ -279,15 +517,15 @@ button.small { min-height:34px; }
 
     <section id="tab-history" class="hidden">
       <div class="page-heading"><button onclick="showTab('home')">←</button><h2>交易紀錄</h2></div>
-      <div class="card feature-card">
-        <p class="intro">加點、兌換、取消與復原紀錄都會顯示在這裡；已取消交易會與原交易合併。</p>
+      <div class="card">
+        <p class="muted" style="margin-top:0">加點、兌換、取消與復原紀錄都會顯示在這裡。</p>
         <div id="historyList" class="list"></div>
       </div>
     </section>
 
     <section id="tab-rules" class="hidden">
       <div class="page-heading"><button onclick="showTab('home')">←</button><h2>集點設定</h2></div>
-      <div class="card feature-card">
+      <div class="card">
         <h3>兌換項目管理</h3>
         <div id="rulesList" class="list"></div>
         <hr>
@@ -299,7 +537,6 @@ button.small { min-height:34px; }
         <div class="actions"><button onclick="saveReward()">儲存獎勵</button><button class="secondary" onclick="clearRewardForm()">清除表單</button></div>
         <hr>
         <h3>初始點數</h3>
-        <p class="intro">初始點數會計入集點印章，也會直接影響目前餘額。</p>
         <label for="initialPoints">初始點數</label><input id="initialPoints" type="number" min="0" max="1000000" step="1">
         <div class="actions"><button onclick="saveInitialPoints()">儲存初始點數</button></div>
       </div>
@@ -307,10 +544,10 @@ button.small { min-height:34px; }
 
     <section id="tab-backup" class="hidden">
       <div class="page-heading"><button onclick="showTab('home')">←</button><h2>資料備份／還原</h2></div>
-      <div class="card feature-card">
-        <h3>JSON 資料備份</h3><p class="intro">匯出目前獎勵設定、初始點數及全部交易紀錄。建議定期下載並保存。</p>
+      <div class="card">
+        <h3>JSON 資料備份</h3><p class="muted">匯出目前獎勵設定、初始點數及全部交易紀錄。</p>
         <div class="actions"><button onclick="exportJson()">下載 JSON 備份</button></div>
-        <hr><h3>匯入備份</h3><p class="intro">匯入會覆蓋目前的獎勵項目與交易紀錄。請先下載現有資料備份。</p>
+        <hr><h3>匯入備份</h3><p class="muted">匯入會覆蓋目前的獎勵項目與交易紀錄。</p>
         <label for="importFile">選擇 JSON 檔案</label><input id="importFile" type="file" accept=".json,application/json">
         <div class="actions"><button class="danger" onclick="importJson()">匯入並覆蓋目前資料</button></div>
       </div>
@@ -343,6 +580,7 @@ button.small { min-height:34px; }
 
 let appData = null;
 let busy = false;
+let selectedMainWishId = localStorage.getItem('selectedMainWishId') || '';
 
 const $ = id => document.getElementById(id);
 
@@ -413,8 +651,7 @@ function forgetSettings() {
   localStorage.removeItem('familyPointsConfig');
   $('apiUrl').value = '';
   $('pin').value = '';
-  $('operator').value = '';
-  $('app').classList.add('hidden');
+  $('operator').value = '';$('app').classList.add('hidden');
   toggleConnectionSettings(true);
   status('本機設定已清除', false, 'connectionStatus');
 }
@@ -424,8 +661,7 @@ function jsonpRead() {
     let c;
     try { c = getConfig(); } catch (e) { reject(e); return; }
 
-    const callback = 'familyPointsCallback_' +
-      Date.now() + '_' + Math.floor(Math.random() * 1000000);
+    const callback = 'familyPointsCallback_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
     const script = document.createElement('script');
     let finished = false;
 
@@ -456,20 +692,11 @@ function jsonpRead() {
       reject(new Error('無法連線，請檢查 Apps Script 部署網址'));
     };
 
-    script.src = c.url + '?action=read&pin=' +
-      encodeURIComponent(c.pin) + '&callback=' + callback +
-      '&_=' + Date.now();
-
+    script.src = c.url + '?action=read&pin=' + encodeURIComponent(c.pin) + '&callback=' + callback + '&_=' + Date.now();
     document.body.appendChild(script);
   });
 }
 
-/*
- * Apps Script 跨網域 POST 使用 no-cors 時，
- * 瀏覽器無法讀取伺服器回傳的錯誤內容。
- * 因此送出後會重新讀取資料；若沒有更新，請檢查
- * Apps Script 執行紀錄及試算表。
- */
 async function postAction(action, payload = {}) {
   if (busy) throw new Error('上一個操作尚未完成，請稍候');
   busy = true;
@@ -488,7 +715,6 @@ async function postAction(action, payload = {}) {
       })
     });
 
-    // no-cors 無法讀取 POST 回應，因此送出後重新讀取後端資料。
     await new Promise(resolve => setTimeout(resolve, 1200));
     await refreshData(false);
     status('已重新讀取資料；請確認點數與交易紀錄是否符合預期。');
@@ -509,7 +735,6 @@ async function connect(auto = false) {
     render();
     showTab('home');
     status('連線成功', false, 'connectionStatus');
-    status('資料已載入');
   } catch (e) {
     toggleConnectionSettings(true);
     status(e.message, true, 'connectionStatus');
@@ -534,14 +759,12 @@ async function refreshData(showMessage = true) {
 
 function openDrawer() {
   if (busy) return;
-  $('sideDrawer').classList.add('open');
-  $('drawerBackdrop').classList.add('open');
+  $('sideDrawer').classList.add('open');$('drawerBackdrop').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
 function closeDrawer() {
-  $('sideDrawer').classList.remove('open');
-  $('drawerBackdrop').classList.remove('open');
+  $('sideDrawer').classList.remove('open');$('drawerBackdrop').classList.remove('open');
   document.body.style.overflow = '';
 }
 
@@ -573,13 +796,13 @@ function render() {
   $('initialPoints').value = appData.initialPoints ?? 0;
 
   const txs = appData.transactions || [];
-  // 印章代表累積獲得點數：初始點數也計入；只計入仍有效的正向原始交易。
-  // 被復原的加點交易及其反向交易都不會重複計入印章。
   const validEarned = txs.filter(t =>
     t.status === '有效' && t.type !== '復原' && Number(t.delta) > 0
   ).reduce((sum, t) => sum + Number(t.delta), 0);
-  renderStamps((Number(appData.initialPoints) || 0) + validEarned);
+  const totalEarned = (Number(appData.initialPoints) || 0) + validEarned;
 
+  renderStamps(totalEarned);
+  renderWishSection();
   renderRewards();
   renderHistory();
   renderRules();
@@ -593,45 +816,116 @@ function renderStamps(totalEarned) {
   const roundSize = 50;
   const completedRounds = Math.floor(total / roundSize);
   const remainder = total % roundSize;
-  // 整輪剛好集滿時，顯示 10 格完整印章，而不是全部清空。
   const fullCells = remainder === 0 && total > 0 ? 10 : Math.floor(remainder / 5);
   const partialPoints = remainder === 0 && total > 0 ? 0 : remainder % 5;
 
+  $('journeyTitle').textContent = `第 ${completedRounds + 1} 張 · 花朵旅程`;
+  $('pageProgressCount').textContent = `${remainder} / 50`;
+  $('journeyFooterNote').textContent = remainder === 0 && total > 0 ? '本輪已集滿 50 點！' : `再 ${50 - remainder} 點完成這張卡`;
+  $('balanceSubtitle').textContent = `已累積 ${total} 點，繼續加油！`;
+
   for (let i = 0; i < 10; i++) {
-    const cell = makeElement('div', 'stamp-cell');
+    const isGiftSlot = (i === 9); // 最後一格為禮物造型
+    const cell = makeElement('div', 'stamp-cell' + (isGiftSlot ? ' gift-cell' : ''));
     const fill = makeElement('div', 'stamp-fill');
-    const icon = makeElement('div', 'stamp-icon', '✹');
+    const icon = makeElement('div', 'stamp-icon', isGiftSlot ? '🎁' : '✿');
     const label = makeElement('div', 'stamp-label');
+
     let fillPercent = 0;
     if (i < fullCells) {
       fillPercent = 100;
       cell.classList.add('filled');
-      label.textContent = '5 點';
+      label.textContent = isGiftSlot ? '完成' : '5 點';
     } else if (i === fullCells && partialPoints > 0) {
       fillPercent = partialPoints / 5 * 100;
       cell.classList.add('partial');
-      label.textContent = partialPoints + '/5 點';
+      label.textContent = `${partialPoints}/5 點`;
     } else {
-      label.textContent = '5 點';
+      label.textContent = isGiftSlot ? '禮物' : `${(i + 1) * 5}`;
     }
     fill.style.height = fillPercent + '%';
-    cell.title = i < fullCells ? '已集滿 5 點' : (i === fullCells && partialPoints ? '目前 ' + partialPoints + ' / 5 點' : '尚未集滿');
     cell.append(fill, icon, label);
     grid.append(cell);
   }
+}
 
-  $('stampRound').textContent = '已完成 ' + completedRounds + ' 輪';
-  if (remainder === 0) {
-    $('stampProgress').textContent = total > 0 ? '本輪已集滿 50 點' : '目前進度 0 / 50 點';
-  } else {
-    $('stampProgress').textContent = '本輪進度 ' + remainder + ' / 50 點';
+function renderWishSection() {
+  const rewards = (appData.rewards || []).filter(r => r.enabled);
+  if (!rewards.length) {
+    $('wishTitle').textContent = '尚無啟用獎勵';
+    $('wishCostLabel').textContent = '需要 -- 點';
+    $('wishProgressRatio').textContent = '-- / --';$('mainRedeemBtn').disabled = true;
+    $('otherWishList').replaceChildren(makeElement('p', 'muted', '請先至後台新增並啟用兌換項目。'));
+    return;
   }
+
+  // 預設選擇第一個或使用者之前選的心願
+  let currentWish = rewards.find(r => r.id === selectedMainWishId) || rewards[0];
+  selectedMainWishId = currentWish.id;
+  localStorage.setItem('selectedMainWishId', selectedMainWishId);
+
+  $('wishTitle').textContent = currentWish.name;
+  $('wishCostLabel').textContent = `需要 ${currentWish.cost} 點`;
+  const currentBalance = appData.balance;
+  $('wishProgressRatio').textContent = `${currentBalance} / ${currentWish.cost}`;
+
+  const percent = Math.min(100, Math.max(0, (currentBalance / currentWish.cost) * 100));
+  $('wishProgressBar').style.width = percent + '%';
+
+  const diff = currentWish.cost - currentBalance;
+  const btn = $('mainRedeemBtn');
+  if (diff <= 0) {
+    btn.textContent = `🎁 立即兌換「${currentWish.name}」`;
+    btn.disabled = false;
+    btn.style.background = '#e86888';
+    btn.style.color = '#fff';
+  } else {
+    btn.textContent = `還差 ${diff} 點`;
+    btn.disabled = true;
+    btn.style.background = '#dcd4cc';
+    btn.style.color = '#73685e';
+  }
+
+  // 渲染右下角其他願望清單 (最多顯示3個)
+  const otherList = $('otherWishList');
+  otherList.replaceChildren();
+  rewards.slice(0, 3).forEach(r => {
+    const row = makeElement('div', 'wish-item-row' + (r.id === currentWish.id ? ' selected' : ''));
+    row.style.cursor = 'pointer';
+    row.onclick = () => {
+      selectedMainWishId = r.id;
+      localStorage.setItem('selectedMainWishId', selectedMainWishId);
+      renderWishSection();
+    };
+
+    const info = makeElement('div', 'wish-item-info');
+    info.append(makeElement('div', 'wish-item-icon', r.id === currentWish.id ? '💖' : '🎁'));
+    const details = makeElement('div', 'wish-item-details');
+    details.append(makeElement('strong', '', r.name));
+    details.append(makeElement('small', '', `${r.cost} 點`));
+    info.append(details);
+
+    row.append(info);
+    const selectHint = makeElement('small', 'muted', r.id === currentWish.id ? '心願中' : '選擇');
+    row.append(selectHint);
+    otherList.append(row);
+  });
+}
+
+async function redeemMainWish() {
+  const rewards = (appData.rewards || []).filter(r => r.enabled);
+  const currentWish = rewards.find(r => r.id === selectedMainWishId);
+  if (!currentWish) return;
+
+  if (!confirm(`確定要兌換心願禮物「${currentWish.name}」？需要扣除 ${currentWish.cost} 點。`)) return;
+  try {
+    await postAction('redeem', { rewardId: currentWish.id });
+  } catch (e) { status(e.message, true); }
 }
 
 function renderRewards() {
   const root = $('rewardList');
   root.replaceChildren();
-
   const rewards = (appData.rewards || []).filter(r => r.enabled);
 
   if (!rewards.length) {
@@ -644,16 +938,30 @@ function renderRewards() {
     const info = makeElement('div');
     info.append(makeElement('strong', '', reward.name));
     info.append(makeElement('small', '', reward.cost + ' 點'));
-    const btn = makeElement('button', '', '兌換');
+
+    const btnGroup = makeElement('div', 'actions');
+    btnGroup.style.margin = '0';
+    
+    const setWishBtn = makeElement('button', 'secondary small', '設為心願');
+    setWishBtn.onclick = () => {
+      selectedMainWishId = reward.id;
+      localStorage.setItem('selectedMainWishId', selectedMainWishId);
+      renderWishSection();
+      showTab('home');
+      status(`已將「${reward.name}」設為首頁心願禮物！`);
+    };
+
+    const btn = makeElement('button', 'small', '直接兌換');
     btn.disabled = appData.balance < reward.cost;
     btn.onclick = async () => {
-      if (!confirm('確定要兌換「' + reward.name + '」？需要 ' +
-          reward.cost + ' 點。')) return;
+      if (!confirm('確定要兌換「' + reward.name + '」？需要 ' + reward.cost + ' 點。')) return;
       try {
         await postAction('redeem', { rewardId: reward.id });
       } catch (e) { status(e.message, true); }
     };
-    card.append(info, btn);
+
+    btnGroup.append(setWishBtn, btn);
+    card.append(info, btnGroup);
     root.append(card);
   });
 }
@@ -668,38 +976,27 @@ function renderHistory() {
     return;
   }
 
-  // 反向紀錄不另外佔一列；狀態合併顯示在原始交易上。
   const visibleTxs = txs.filter(t => t.type !== '復原');
-
   visibleTxs.forEach(t => {
     const row = makeElement('div', 'tx');
     const left = makeElement('div');
     const canceled = t.status === '已復原' || t.status === '已取消';
     left.append(makeElement('strong', '', t.item || t.type));
 
-    const detail = [t.type, t.operator, canceled ? '已取消／已復原' : t.status, t.note]
-      .filter(Boolean).join(' · ');
+    const detail = [t.type, t.operator, canceled ? '已取消／已復原' : t.status, t.note].filter(Boolean).join(' · ');
     left.append(makeElement('div', 'meta', detail));
     left.append(makeElement('div', 'meta', t.time || ''));
 
     if (canceled) {
       const reversal = txs.find(r => r.type === '復原' && r.relatedId === t.id);
-      const note = reversal
-        ? '原始交易 ' + (t.delta > 0 ? '+' : '') + t.delta +
-          ' 點，已由復原紀錄抵銷'
-        : '此交易已取消';
+      const note = reversal ? '原始交易已由復原紀錄抵銷' : '此交易已取消';
       left.append(makeElement('div', 'meta', note));
     }
 
     const right = makeElement('div');
     right.style.textAlign = 'right';
-    const amountText = (t.delta > 0 ? '+' : '') + t.delta + ' 點' +
-      (canceled ? '（已取消）' : '');
-    right.append(makeElement(
-      'div',
-      canceled ? 'muted' : (t.delta >= 0 ? 'plus' : 'minus'),
-      amountText
-    ));
+    const amountText = (t.delta > 0 ? '+' : '') + t.delta + ' 點' + (canceled ? '（已取消）' : '');
+    right.append(makeElement('div', canceled ? 'muted' : (t.delta >= 0 ? 'plus' : 'minus'), amountText));
 
     if (t.status === '有效' && t.type !== '復原') {
       const btn = makeElement('button', 'danger small', '取消／復原');
@@ -726,8 +1023,7 @@ function renderRules() {
     const row = makeElement('div', 'reward');
     const info = makeElement('div');
     info.append(makeElement('strong', '', reward.name));
-    info.append(makeElement('small', '',
-      reward.cost + ' 點 · ' + (reward.enabled ? '啟用中' : '已停用')));
+    info.append(makeElement('small', '', reward.cost + ' 點 · ' + (reward.enabled ? '啟用中' : '已停用')));
 
     const edit = makeElement('button', 'secondary small', '編輯');
     edit.onclick = () => {
@@ -747,8 +1043,7 @@ function renderRules() {
 function calculatePoints() {
   const amount = Number($('calcAmount').value);
   const name = $('calcItemName').value.trim();
-  const valid = Number.isFinite(amount) && Number.isInteger(amount) &&
-    amount > 0 && amount <= 1000000;
+  const valid = Number.isFinite(amount) && Number.isInteger(amount) && amount > 0 && amount <= 1000000;
   const points = valid ? Math.ceil(amount / 3) : 0;
   $('calcResult').textContent = valid ? points + ' 點' : '—';
   $('customRedeemBtn').disabled = !valid || !name || !appData || appData.balance < points;
@@ -758,45 +1053,23 @@ function calculatePoints() {
 
 async function redeemCalculatedItem() {
   const c = calculatePoints();
-  if (!c.valid || !c.name) {
-    status('請輸入項目名稱及有效金額', true);
-    return;
-  }
-  if (!appData || appData.balance < c.points) {
-    status('目前點數不足，無法兌換', true);
-    return;
-  }
-  if (!confirm('確定兌換「' + c.name + '」？金額 ' + c.amount +
-      ' 元，需扣 ' + c.points + ' 點。')) return;
+  if (!c.valid || !c.name) { status('請輸入項目名稱及有效金額', true); return; }
+  if (!appData || appData.balance < c.points) { status('目前點數不足，無法兌換', true); return; }
+  if (!confirm('確定兌換「' + c.name + '」？金額 ' + c.amount + ' 元，需扣 ' + c.points + ' 點。')) return;
   try {
-    await postAction('redeemCustom', {
-      name: c.name,
-      points: c.points,
-      note: '金額 ' + c.amount + ' 元；每 3 元 1 點，無條件進位'
-    });
-    $('calcItemName').value = '';
-    $('calcAmount').value = '';
+    await postAction('redeemCustom', { name: c.name, points: c.points, note: '金額 ' + c.amount + ' 元；每 3 元 1 點' });
+    $('calcItemName').value = '';$('calcAmount').value = '';
     calculatePoints();
   } catch (e) { status(e.message, true); }
 }
 
 async function saveCalculatedReward() {
   const c = calculatePoints();
-  if (!c.valid || !c.name) {
-    status('請輸入項目名稱及有效金額', true);
-    return;
-  }
-  if (!confirm('要將「' + c.name + '」加入獎勵設定嗎？所需點數：' +
-      c.points + ' 點。')) return;
+  if (!c.valid || !c.name) { status('請輸入項目名稱及有效金額', true); return; }
+  if (!confirm('要將「' + c.name + '」加入獎勵設定嗎？所需點數：' + c.points + ' 點。')) return;
   try {
-    await postAction('saveReward', {
-      id: '',
-      name: c.name,
-      cost: c.points,
-      enabled: true
-    });
-    $('calcItemName').value = '';
-    $('calcAmount').value = '';
+    await postAction('saveReward', { id: '', name: c.name, cost: c.points, enabled: true });
+    $('calcItemName').value = '';$('calcAmount').value = '';
     calculatePoints();
     status('已加入兌換項目');
   } catch (e) { status(e.message, true); }
@@ -812,13 +1085,8 @@ async function addPoints() {
   }
 
   try {
-    await postAction('addPoints', {
-      points,
-      item: note || '手動加點',
-      note
-    });
-    $('addPoints').value = '';
-    $('addNote').value = '';
+    await postAction('addPoints', { points, item: note || '手動加點', note });
+    $('addPoints').value = '';$('addNote').value = '';
   } catch (e) { status(e.message, true); }
 }
 
@@ -832,20 +1100,14 @@ async function saveReward() {
   }
 
   try {
-    await postAction('saveReward', {
-      id: $('rewardId').value,
-      name,
-      cost,
-      enabled: $('rewardEnabled').checked
-    });
+    await postAction('saveReward', { id: $('rewardId').value, name, cost, enabled:$('rewardEnabled').checked });
     clearRewardForm();
   } catch (e) { status(e.message, true); }
 }
 
 function clearRewardForm() {
   $('rewardId').value = '';
-  $('rewardName').value = '';
-  $('rewardCost').value = 20;
+  $('rewardName').value = '';$('rewardCost').value = 20;
   $('rewardEnabled').checked = true;
   $('rewardFormTitle').textContent = '新增獎勵';
 }
@@ -863,16 +1125,11 @@ async function saveInitialPoints() {
 
 function exportJson() {
   if (!appData) { status('請先連線並載入資料', true); return; }
-
-  const blob = new Blob(
-    [JSON.stringify(appData, null, 2)],
-    { type: 'application/json;charset=utf-8' }
-  );
+  const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'family-points-backup-' +
-    new Date().toISOString().slice(0, 10) + '.json';
+  a.download = 'family-points-backup-' + new Date().toISOString().slice(0, 10) + '.json';
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -880,16 +1137,12 @@ function exportJson() {
 async function importJson() {
   const file = $('importFile').files[0];
   if (!file) { status('請先選擇 JSON 備份檔案', true); return; }
-
-  if (!confirm('匯入會覆蓋目前所有獎勵及交易紀錄。確定已備份現有資料嗎？')) {
-    return;
-  }
+  if (!confirm('匯入會覆蓋目前所有獎勵及交易紀錄。確定已備份現有資料嗎？')) return;
 
   try {
     const data = JSON.parse(await file.text());
-    if (!data || !Array.isArray(data.rewards) ||
-        !Array.isArray(data.transactions)) {
-      throw new Error('檔案格式不正確，請選擇本集點簿匯出的 JSON');
+    if (!data || !Array.isArray(data.rewards) || !Array.isArray(data.transactions)) {
+      throw new Error('檔案格式不正確');
     }
     await postAction('importJson', { data });
     $('importFile').value = '';
